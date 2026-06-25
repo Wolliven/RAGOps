@@ -3,3 +3,7 @@ uvicorn
 python-multipart
 sentence-transformers
 numpy
+
+# front
+streamlit
+requests
