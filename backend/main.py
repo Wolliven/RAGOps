@@ -5,6 +5,7 @@ import json
 from pydantic import BaseModel
 import numpy as np
 from sentence_transformers import SentenceTransformer
+from functools import lru_cache
 
 UPLOAD_DIR = Path("data/uploads")
 PROCESSED_DIR = Path("data/processed")
@@ -16,7 +17,12 @@ PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 CHUNKS_DIR.mkdir(parents=True, exist_ok=True)
 EMBEDDINGS_DIR.mkdir(parents=True, exist_ok=True)
 
-embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+
+
+@lru_cache(maxsize=1)
+def get_embedding_model():
+    return SentenceTransformer(EMBEDDING_MODEL_NAME)
 
 
 app = FastAPI()
@@ -104,12 +110,40 @@ def extract_text_from_file(file_path: Path) -> str:
     
     raise ValueError("Unsupported file type")
 
-def chunk_text(text: str, chunk_size: int = 500) -> list[str]:
+def chunk_text(text: str, chunk_size: int = 800, overlap: int = 100) -> list[str]:
     if chunk_size <= 0:
-        raise ValueError("Chunk Size must be a positive integer")
+        raise ValueError("chunk_size must be greater than 0")
+
+    if overlap < 0:
+        raise ValueError("overlap cannot be negative")
+
+    if overlap >= chunk_size:
+        raise ValueError("overlap must be smaller than chunk_size")
+
     chunks = []
-    for start in range(0, len(text), chunk_size):
-        chunks.append(text[start:start + chunk_size])
+    start = 0
+
+    while start < len(text):
+        max_end = min(start + chunk_size, len(text))
+        end = max_end
+
+        if max_end < len(text):
+            last_space = text.rfind(" ", start, max_end)
+
+            if last_space != -1 and last_space > start:
+                end = last_space
+
+        chunk = text[start:end].strip()
+
+        if chunk:
+            chunks.append(chunk)
+
+        next_start = end - overlap
+
+        if next_start <= start:
+            next_start = end
+
+        start = next_start
 
     return chunks
 
@@ -130,7 +164,8 @@ def embed_chunks(chunk_data: list[dict]) -> list[dict]:
     for chunk in chunk_data:
         texts.append(chunk["text"])
 
-    embeddings = embedding_model.encode(texts)
+    model = get_embedding_model()
+    embeddings = model.encode(texts)
 
     embedded_chunks = []
 
@@ -179,7 +214,8 @@ def search_chunks(query: str, embedded_chunks: list[dict], top_k: int = 3) -> li
     if not embedded_chunks:
         return []
 
-    query_embedding = embedding_model.encode(query)
+    model = get_embedding_model()
+    query_embedding = model.encode(query)
 
     chunk_embeddings = []
 
