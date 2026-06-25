@@ -22,7 +22,11 @@ Thumbs.db
 # Project data
 data/uploads/*
 data/processed/*
+data/embeddings/*
+data/chunks/*
 
 # Keep empty folders
 !data/uploads/.gitkeep
 !data/processed/.gitkeep
+!data/chunks/.gitkeep
+!data/embeddings/.gitkeep

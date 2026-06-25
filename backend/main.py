@@ -2,15 +2,20 @@ from fastapi import FastAPI, UploadFile, File
 from pathlib import Path
 import shutil
 import json
+from sentence_transformers import SentenceTransformer
 
 UPLOAD_DIR = Path("data/uploads")
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-
 PROCESSED_DIR = Path("data/processed")
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
 CHUNKS_DIR = Path("data/chunks")
+EMBEDDINGS_DIR = Path("data/embeddings")
+
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 CHUNKS_DIR.mkdir(parents=True, exist_ok=True)
+EMBEDDINGS_DIR.mkdir(parents=True, exist_ok=True)
+
+embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
 
 app = FastAPI()
 
@@ -33,6 +38,7 @@ def upload_file(file: UploadFile = File(...)):
     processed_path = PROCESSED_DIR / f"{file_path.stem}.txt"
     processed_path.write_text(text, encoding="utf-8")
     chunks = chunk_text(text)
+
     chunk_data = create_chunk_metadata(chunks)
 
     chunks_path = CHUNKS_DIR / f"{file_path.stem}.json"
@@ -42,12 +48,22 @@ def upload_file(file: UploadFile = File(...)):
         encoding="utf-8"
     )
 
+    embedded_chunks = embed_chunks(chunk_data)
+
+    embeddings_path = EMBEDDINGS_DIR / f"{file_path.stem}.json"
+    embeddings_path.write_text(
+        json.dumps(embedded_chunks, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
+
     return {
         "message": "File uploaded successfully",
         "filename": file.filename,
         "saved_path": str(file_path),
         "processed_path": str(processed_path),
-        "characters": len(text)
+        "characters": len(text),
+        "embeddings_path": str(embeddings_path),
+        "embedding_dimensions": len(embedded_chunks[0]["embedding"]) if embedded_chunks else 0
     }
 
 def extract_text_from_file(file_path: Path) -> str:
@@ -77,3 +93,21 @@ def create_chunk_metadata(chunks: list[str]) -> list[dict]:
         })
 
     return chunk_data
+
+def embed_chunks(chunk_data: list[dict]) -> list[dict]:
+    texts = []
+
+    for chunk in chunk_data:
+        texts.append(chunk["text"])
+
+    embeddings = embedding_model.encode(texts)
+
+    embedded_chunks = []
+
+    for chunk, embedding in zip(chunk_data, embeddings):
+        embedded_chunk = chunk.copy()
+        embedded_chunk["embedding"] = embedding.tolist()
+        embedded_chunks.append(embedded_chunk)
+
+    return embedded_chunks
+
