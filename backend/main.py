@@ -1,7 +1,9 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from pathlib import Path
 import shutil
 import json
+from pydantic import BaseModel
+import numpy as np
 from sentence_transformers import SentenceTransformer
 
 UPLOAD_DIR = Path("data/uploads")
@@ -18,6 +20,10 @@ embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 
 app = FastAPI()
+
+class SearchRequest(BaseModel):
+    query: str
+    top_k: int = 3
 
 @app.get("/")
 def read_root():
@@ -66,6 +72,30 @@ def upload_file(file: UploadFile = File(...)):
         "embedding_dimensions": len(embedded_chunks[0]["embedding"]) if embedded_chunks else 0
     }
 
+@app.post("/search")
+def search(request: SearchRequest):
+    embedded_chunks = load_all_embedded_chunks()
+
+    if not embedded_chunks:
+        raise HTTPException(
+            status_code=404,
+            detail="No embeddings found. Upload and process a document first."
+        )
+
+    top_k = min(request.top_k, 10)
+
+    results = search_chunks(
+        query=request.query,
+        embedded_chunks=embedded_chunks,
+        top_k=top_k
+    )
+
+    return {
+        "query": request.query,
+        "top_k": top_k,
+        "results": results
+    }
+
 def extract_text_from_file(file_path: Path) -> str:
     extension = file_path.suffix.lower()
 
@@ -110,4 +140,67 @@ def embed_chunks(chunk_data: list[dict]) -> list[dict]:
         embedded_chunks.append(embedded_chunk)
 
     return embedded_chunks
+
+def load_all_embedded_chunks() -> list[dict]:
+    all_chunks = []
+
+    for embeddings_path in EMBEDDINGS_DIR.glob("*.json"):
+        json_text = embeddings_path.read_text(encoding="utf-8")
+        chunks = json.loads(json_text)
+
+        for chunk in chunks:
+            chunk_copy = chunk.copy()
+            chunk_copy["source_file"] = embeddings_path.stem
+            all_chunks.append(chunk_copy)
+
+    return all_chunks
+
+def cosine_scores(query_embedding, chunk_embeddings):
+    query_vector = np.array(query_embedding, dtype=np.float32)
+    chunk_matrix = np.array(chunk_embeddings, dtype=np.float32)
+
+    if chunk_matrix.size == 0:
+        return np.array([])
+
+    query_norm = np.linalg.norm(query_vector)
+    chunk_norms = np.linalg.norm(chunk_matrix, axis=1)
+
+    denominator = chunk_norms * query_norm
+    denominator = np.where(denominator == 0, 1e-10, denominator)
+
+    scores = (chunk_matrix @ query_vector) / denominator
+
+    return scores
+
+def search_chunks(query: str, embedded_chunks: list[dict], top_k: int = 3) -> list[dict]:
+    if top_k <= 0:
+        raise ValueError("top_k must be greater than 0")
+
+    if not embedded_chunks:
+        return []
+
+    query_embedding = embedding_model.encode(query)
+
+    chunk_embeddings = []
+
+    for chunk in embedded_chunks:
+        chunk_embeddings.append(chunk["embedding"])
+
+    scores = cosine_scores(query_embedding, chunk_embeddings)
+
+    results = []
+
+    for chunk, score in zip(embedded_chunks, scores):
+        result = {
+            "source_file": chunk.get("source_file"),
+            "chunk_id": chunk.get("chunk_id"),
+            "score": float(score),
+            "text": chunk.get("text", "")
+        }
+
+        results.append(result)
+
+    results.sort(key=lambda item: item["score"], reverse=True)
+
+    return results[:top_k]
 
