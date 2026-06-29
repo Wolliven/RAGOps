@@ -19,8 +19,8 @@ st.write("Upload documents and test semantic search.")
 st.header("1. Upload document")
 
 uploaded_file = st.file_uploader(
-    "Choose a TXT or Markdown file",
-    type=["txt", "md"]
+    "Choose a TXT, Markdown, or PDF file",
+    type=["txt", "md", "pdf"]
 )
 
 if uploaded_file is not None:

@@ -3,6 +3,7 @@ uvicorn
 python-multipart
 sentence-transformers
 numpy
+pypdf
 
 # front
 streamlit
