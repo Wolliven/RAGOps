@@ -4,6 +4,7 @@ python-multipart
 sentence-transformers
 numpy
 pypdf
+rank-bm25
 
 # front
 streamlit

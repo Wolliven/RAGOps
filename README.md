@@ -56,6 +56,33 @@ LLM
   ↓
 Answer + Sources + Metrics
 
+## How to run
+Terminal 1 — Backend
+.venv\Scripts\activate
+python -m uvicorn backend.main:app --reload
+
+Backend runs here:
+
+http://127.0.0.1:8000
+
+API docs:
+
+http://127.0.0.1:8000/docs
+Terminal 2 — Frontend UI
+.venv\Scripts\activate
+python -m streamlit run frontend/app.py
+
+Frontend usually opens here:
+
+http://localhost:8501
+Normal flow
+Start backend.
+Start frontend.
+Upload a .txt, .md, or .pdf.
+Ask questions in the search box.
+
+Do not run Streamlit with just streamlit run... unless your venv is definitely active. Safer:
+
 ## License
 
 MIT License
