@@ -14,6 +14,7 @@ from functools import lru_cache
 from pypdf import PdfReader
 import re
 from backend.retrieval.semantic import search_chunks
+from backend.retrieval.bm25 import build_bm25_index, search_bm25
 
 UPLOAD_DIR = Path("data/uploads")
 PROCESSED_DIR = Path("data/processed")
@@ -46,6 +47,31 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.post("/search/bm25")
+def bm25_search_endpoint(request: SearchRequest):
+    chunks = load_all_embedded_chunks()
+
+    if not chunks:
+        raise HTTPException(
+            status_code=404,
+            detail="No indexed chunks found."
+        )
+
+    top_k = min(max(request.top_k, 1), 20)
+
+    retriever = build_bm25_index(chunks)
+
+    results = search_bm25(
+        query=request.query,
+        retriever=retriever,
+        top_k=top_k
+    )
+
+    return {
+        "query": request.query,
+        "results": results
+    }
 
 @app.post("/upload")
 def upload_file(file: UploadFile = File(...)):
