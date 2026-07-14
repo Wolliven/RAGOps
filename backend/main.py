@@ -57,8 +57,8 @@ def upload_file(file: UploadFile = File(...)):
     processed_path = PROCESSED_DIR / f"{file_path.stem}.txt"
     processed_path.write_text(text, encoding="utf-8")
     chunks = chunk_text(text)
-
-    chunk_data = create_chunk_metadata(chunks)
+    document_id = file_path.stem
+    chunk_data = create_chunk_metadata(chunks=chunks, document_id=document_id, source_file=file.filename)
 
     chunks_path = CHUNKS_DIR / f"{file_path.stem}.json"
 
@@ -211,11 +211,14 @@ def chunk_text(text: str, chunk_size: int = 800, overlap: int = 100) -> list[str
 
     return chunks
 
-def create_chunk_metadata(chunks: list[str]) -> list[dict]:
+def create_chunk_metadata(chunks: list[str], document_id: str, source_file: str) -> list[dict]:
     chunk_data = []
     for index, chunk in enumerate(chunks):
         chunk_data.append({
-            "chunk_id": index,
+            "chunk_id": f"{document_id}:{index}",
+            "document_id": document_id,
+            "source_file": source_file,
+            "chunk_index": index,
             "text": chunk,
             "characters": len(chunk)
         })
@@ -246,11 +249,7 @@ def load_all_embedded_chunks() -> list[dict]:
     for embeddings_path in EMBEDDINGS_DIR.glob("*.json"):
         json_text = embeddings_path.read_text(encoding="utf-8")
         chunks = json.loads(json_text)
-
-        for chunk in chunks:
-            chunk_copy = chunk.copy()
-            chunk_copy["source_file"] = embeddings_path.stem
-            all_chunks.append(chunk_copy)
+        all_chunks.extend(chunks)
 
     return all_chunks
 

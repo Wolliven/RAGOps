@@ -57,7 +57,7 @@ LLM
 Answer + Sources + Metrics
 
 ## How to run
-Terminal 1 — Backend
+### Terminal 1 — Backend
 .venv\Scripts\activate
 python -m uvicorn backend.main:app --reload
 
@@ -68,7 +68,8 @@ http://127.0.0.1:8000
 API docs:
 
 http://127.0.0.1:8000/docs
-Terminal 2 — Frontend UI
+
+### Terminal 2 — Frontend UI
 .venv\Scripts\activate
 python -m streamlit run frontend/app.py
 
