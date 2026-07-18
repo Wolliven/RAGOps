@@ -52,8 +52,10 @@ def search_chunks(query: str, embedded_chunks: list[dict], model: SentenceTransf
     for chunk, score in zip(embedded_chunks, scores):
         result = {
             "source_file": chunk.get("source_file"),
+            "document_id": chunk.get("document_id"),
             "chunk_id": chunk.get("chunk_id"),
-            "score": float(score),
+            "chunk_index": chunk.get("chunk_index"),
+            "semantic_score": float(score),
             "text": chunk.get("text", "")
         }
 

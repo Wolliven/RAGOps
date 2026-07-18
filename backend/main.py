@@ -73,6 +73,39 @@ def bm25_search_endpoint(request: SearchRequest):
         "results": results
     }
 
+@app.post("/search/compare")
+def compare_search_endpoint(request: SearchRequest):
+    chunks = load_all_embedded_chunks()
+
+    if not chunks:
+        raise HTTPException(
+            status_code=404,
+            detail="No indexed chunks found."
+        )
+
+    top_k = min(max(request.top_k, 1), 20)
+
+    semantic_results = search_chunks(
+        query=request.query,
+        embedded_chunks=chunks,
+        model=get_embedding_model(),
+        top_k=top_k
+    )
+
+    bm25_retriever = build_bm25_index(chunks)
+
+    bm25_results = search_bm25(
+        query=request.query,
+        retriever=bm25_retriever,
+        top_k=top_k
+    )
+
+    return {
+        "query": request.query,
+        "semantic_results": semantic_results,
+        "bm25_results": bm25_results
+    }
+
 @app.post("/upload")
 def upload_file(file: UploadFile = File(...)):
     file_path = UPLOAD_DIR / file.filename
