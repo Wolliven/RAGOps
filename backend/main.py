@@ -170,19 +170,32 @@ def search(request: SearchRequest):
             detail="No embeddings found. Upload and process a document first."
         )
 
-    top_k = min(request.top_k, 10)
+    top_k = min(max(request.top_k, 1), 20)
 
-    results = search_chunks(
+    semantic_results = search_chunks(
         query=request.query,
         embedded_chunks=embedded_chunks,
-        model= get_embedding_model(),
-        top_k=top_k
+        model=get_embedding_model(),
+        top_k=20
     )
+
+    bm25_retriever = build_bm25_index(embedded_chunks)
+
+    bm25_results = search_bm25(
+        query=request.query,
+        retriever=bm25_retriever,
+        top_k=20
+    )
+
+    fused_results = reciprocal_rank_fusion(
+        semantic_results= semantic_results,
+        bm25_results= bm25_results,
+        top_k=request.top_k
+        )
 
     return {
         "query": request.query,
-        "top_k": top_k,
-        "results": results
+        "results": fused_results
     }
 
 
