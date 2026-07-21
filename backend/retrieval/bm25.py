@@ -12,7 +12,7 @@ def build_bm25_index(chunks: list[dict]):
     """
     texts = [chunk["text"] for chunk in chunks]
 
-    tokenized_texts = bm25s.tokenize(texts)
+    tokenized_texts = bm25s.tokenize(texts, stopwords=[])
 
     retriever = bm25s.BM25(corpus=chunks)
 
