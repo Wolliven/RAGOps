@@ -74,7 +74,7 @@ if st.button("Search"):
             st.subheader("Results")
 
             for index, result in enumerate(data["results"], start=1):
-                score = result["score"]
+                score = result["semantic_score"]
                 source_file = result["source_file"]
                 chunk_id = result["chunk_id"]
                 text = result["text"]

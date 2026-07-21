@@ -61,7 +61,7 @@ def search_chunks(query: str, embedded_chunks: list[dict], model: SentenceTransf
 
         results.append(result)
 
-    results.sort(key=lambda item: item["score"], reverse=True)
+    results.sort(key=lambda item: item["semantic_score"], reverse=True)
 
     return results[:top_k]
 
