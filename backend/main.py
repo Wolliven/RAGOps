@@ -15,6 +15,7 @@ from pypdf import PdfReader
 import re
 from backend.retrieval.semantic import search_chunks
 from backend.retrieval.bm25 import build_bm25_index, search_bm25
+from backend.retrieval.fusion import reciprocal_rank_fusion
 
 UPLOAD_DIR = Path("data/uploads")
 PROCESSED_DIR = Path("data/processed")
@@ -100,11 +101,20 @@ def compare_search_endpoint(request: SearchRequest):
         top_k=top_k
     )
 
+    fused_results = reciprocal_rank_fusion(
+        semantic_results= semantic_results,
+        bm25_results= bm25_results,
+        top_k=request.top_k
+        )
+
     return {
         "query": request.query,
         "semantic_results": semantic_results,
-        "bm25_results": bm25_results
-    }
+        "bm25_results": bm25_results,
+        "hybrid_results": fused_results
+}   
+
+
 
 @app.post("/upload")
 def upload_file(file: UploadFile = File(...)):
