@@ -242,5 +242,18 @@ router.get('/history', (req, res, next) => {
   );
 });
 
+router.post('/history/delete', (req, res, next) => {
+  db.run(
+    'delete from search_history',
+    (err) => {
+      if (err) {
+        next(err);
+        return;
+      }
+
+      res.redirect('/ragops/history');
+    }
+  );
+});
 
 module.exports = router;

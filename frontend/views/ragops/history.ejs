@@ -20,6 +20,16 @@
     <a href="/ragops/search" class="btn btn-secondary">
       Back to Search
     </a>
+    <form
+      method="post"
+      action="/ragops/history/delete"
+      class="d-inline"
+      onsubmit="return confirm('Delete all search history? This action cannot be undone.');"
+    >
+      <button type="submit" class="btn btn-danger">
+        Delete History
+      </button>
+    </form>
   </header>
 
   <% if (history.length === 0) { %>
