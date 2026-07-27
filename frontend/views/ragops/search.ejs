@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <title><%= title %></title>
 
-  <link rel="stylesheet"
-        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        crossorigin="anonymous">
+  <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    crossorigin="anonymous"
+  >
 
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
@@ -14,75 +16,153 @@
 <body class="container">
   <header class="mt-4 mb-4">
     <h1 class="display-4">RAGOps Web Manager</h1>
-    <p>文書の内容を意味で検索するWebアプリ</p>
+    <p>文書をアップロードして、内容を意味で検索するWebアプリ</p>
 
-    <a href="/ragops/history" class="btn btn-secondary">検索履歴</a>
+    <a href="/ragops/history" class="btn btn-secondary">
+      検索履歴
+    </a>
   </header>
 
   <main>
-    <h2>Semantic Search</h2>
+    <!-- Upload section -->
+    <section class="mb-5">
+      <h2>1. 文書アップロード</h2>
 
-    <% if (error) { %>
-      <div class="alert alert-danger">
-        <%= error %>
-      </div>
-    <% } %>
+      <p>TXT、Markdown、またはPDFファイルを選択してください。</p>
 
-    <form method="post" action="/ragops/search">
-      <div class="form-group">
-        <label for="query">質問</label>
-        <input type="text"
-               name="query"
-               id="query"
-               value="<%= query %>"
-               class="form-control"
-               placeholder="文書について質問してください">
-      </div>
+      <% if (upload_error) { %>
+        <div class="alert alert-danger">
+          <%= upload_error %>
+        </div>
+      <% } %>
 
-      <div class="form-group">
-        <label for="top_k">結果数</label>
-        <input type="number"
-               name="top_k"
-               id="top_k"
-               value="<%= top_k %>"
-               min="1"
-               max="10"
-               class="form-control">
-      </div>
+      <% if (upload_message) { %>
+        <div class="alert alert-success">
+          <%= upload_message %>
+        </div>
+      <% } %>
 
-      <input type="submit" value="検索" class="btn btn-primary">
-    </form>
+      <form
+        method="post"
+        action="/ragops/upload"
+        enctype="multipart/form-data"
+      >
+        <div class="form-group">
+          <label for="file">ファイル</label>
 
-    <% if (results) { %>
-      <hr>
+          <input
+            type="file"
+            name="file"
+            id="file"
+            accept=".txt,.md,.pdf"
+            class="form-control-file"
+            required
+          >
+        </div>
 
-      <h2>検索結果</h2>
+        <button type="submit" class="btn btn-success">
+          アップロードして処理
+        </button>
+      </form>
 
-      <% for (var i = 0; i < results.length; i++) { %>
-        <% var result = results[i]; %>
-
+      <% if (upload_data) { %>
         <div class="card mt-3">
           <div class="card-header">
-            Result <%= i + 1 %>
-            |
-            Score:
-            <% if (result.semantic_score) { %>
-              <%= result.semantic_score.toFixed(4) %>
-            <% } else { %>
-              <%= result.score %>
-            <% } %>
-            |
-            Source: <%= result.source_file %>
-            |
-            Chunk: <%= result.chunk_id %>
+            処理結果
           </div>
 
           <div class="card-body">
-            <p><%= result.text %></p>
+            <pre class="mb-0"><%= JSON.stringify(upload_data, null, 2) %></pre>
           </div>
         </div>
       <% } %>
-    <% } %>
+    </section>
+
+    <hr>
+
+    <!-- Search section -->
+    <section class="mt-5">
+      <h2>2. Semantic Search</h2>
+
+      <% if (error) { %>
+        <div class="alert alert-danger">
+          <%= error %>
+        </div>
+      <% } %>
+
+      <form method="post" action="/ragops/search">
+        <div class="form-group">
+          <label for="query">質問</label>
+
+          <input
+            type="text"
+            name="query"
+            id="query"
+            value="<%= query %>"
+            class="form-control"
+            placeholder="文書について質問してください"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="top_k">結果数</label>
+
+          <input
+            type="number"
+            name="top_k"
+            id="top_k"
+            value="<%= top_k %>"
+            min="1"
+            max="10"
+            class="form-control"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          検索
+        </button>
+      </form>
+
+      <% if (results && results.length > 0) { %>
+        <hr>
+
+        <h2>検索結果</h2>
+
+        <% for (let i = 0; i < results.length; i++) { %>
+          <% const result = results[i]; %>
+
+          <div class="card mt-3">
+            <div class="card-header">
+              Result <%= i + 1 %>
+              |
+              Score:
+
+              <% if (result.semantic_score != null) { %>
+                <%= Number(result.semantic_score).toFixed(4) %>
+              <% } else if (result.score != null) { %>
+                <%= Number(result.score).toFixed(4) %>
+              <% } else { %>
+                N/A
+              <% } %>
+
+              |
+              Source: <%= result.source_file %>
+              |
+              Chunk: <%= result.chunk_id %>
+            </div>
+
+            <div class="card-body">
+              <p class="mb-0"><%= result.text %></p>
+            </div>
+          </div>
+        <% } %>
+      <% } else if (results) { %>
+        <div class="alert alert-warning mt-4">
+          検索結果が見つかりませんでした。
+        </div>
+      <% } %>
+    </section>
   </main>
 </body>
 </html>
