@@ -1,39 +1,55 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title><%= title %></title>
 
-  <link rel="stylesheet"
-        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-        crossorigin="anonymous">
+  <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    crossorigin="anonymous"
+  >
 
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 
 <body class="container">
   <header class="mt-4 mb-4">
-    <h1 class="display-4">検索履歴</h1>
-    <a href="/ragops/search" class="btn btn-secondary">検索へ戻る</a>
+    <h1 class="display-4">Search History</h1>
+
+    <a href="/ragops/search" class="btn btn-secondary">
+      Back to Search
+    </a>
   </header>
 
-  <table class="table">
-    <tr>
-      <th>ID</th>
-      <th>質問</th>
-      <th>結果数</th>
-      <th>日時</th>
-    </tr>
+  <% if (history.length === 0) { %>
+    <div class="alert alert-info">
+      No searches have been saved yet.
+    </div>
+  <% } else { %>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Question</th>
+          <th>Number of Results</th>
+          <th>Date and Time</th>
+        </tr>
+      </thead>
 
-    <% for (var i = 0; i < history.length; i++) { %>
-      <% var item = history[i]; %>
-      <tr>
-        <td><%= item.id %></td>
-        <td><%= item.query %></td>
-        <td><%= item.top_k %></td>
-        <td><%= item.created_at %></td>
-      </tr>
-    <% } %>
-  </table>
+      <tbody>
+        <% for (let i = 0; i < history.length; i++) { %>
+          <% const item = history[i]; %>
+
+          <tr>
+            <td><%= item.id %></td>
+            <td><%= item.query %></td>
+            <td><%= item.top_k %></td>
+            <td><%= new Date(item.created_at).toLocaleString('en-GB') %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  <% } %>
 </body>
 </html>

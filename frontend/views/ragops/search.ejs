@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title><%= title %></title>
@@ -16,19 +16,19 @@
 <body class="container">
   <header class="mt-4 mb-4">
     <h1 class="display-4">RAGOps Web Manager</h1>
-    <p>文書をアップロードして、内容を意味で検索するWebアプリ</p>
+    <p>Upload documents and search their content by meaning.</p>
 
     <a href="/ragops/history" class="btn btn-secondary">
-      検索履歴
+      Search History
     </a>
   </header>
 
   <main>
     <!-- Upload section -->
     <section class="mb-5">
-      <h2>1. 文書アップロード</h2>
+      <h2>1. Upload Document</h2>
 
-      <p>TXT、Markdown、またはPDFファイルを選択してください。</p>
+      <p>Select a TXT, Markdown, or PDF file.</p>
 
       <% if (upload_error) { %>
         <div class="alert alert-danger">
@@ -49,7 +49,7 @@
         enctype="multipart/form-data"
       >
         <div class="form-group">
-          <label for="file">ファイル</label>
+          <label for="file">File</label>
 
           <input
             type="file"
@@ -66,7 +66,7 @@
           id="upload-button"
           class="btn btn-success"
         >
-          アップロードして処理
+          Upload and Process
         </button>
       </form>
 
@@ -83,14 +83,14 @@
         </div>
 
         <span class="ml-2">
-          文書を処理しています。しばらくお待ちください。
+          Processing the document. This may take a moment.
         </span>
       </div>
 
       <% if (upload_data) { %>
         <div class="card mt-3">
           <div class="card-header">
-            処理結果
+            Processing Result
           </div>
 
           <div class="card-body">
@@ -114,7 +114,7 @@
 
       <form method="post" action="/ragops/search">
         <div class="form-group">
-          <label for="query">質問</label>
+          <label for="query">Question</label>
 
           <input
             type="text"
@@ -122,13 +122,13 @@
             id="query"
             value="<%= query %>"
             class="form-control"
-            placeholder="文書について質問してください"
+            placeholder="Ask a question about your documents"
             required
           >
         </div>
 
         <div class="form-group">
-          <label for="top_k">結果数</label>
+          <label for="top_k">Number of Results</label>
 
           <input
             type="number"
@@ -142,14 +142,14 @@
         </div>
 
         <button type="submit" class="btn btn-primary">
-          検索
+          Search
         </button>
       </form>
 
       <% if (results && results.length > 0) { %>
         <hr>
 
-        <h2>検索結果</h2>
+        <h2>Search Results</h2>
 
         <% for (let i = 0; i < results.length; i++) { %>
           <% const result = results[i]; %>
@@ -181,11 +181,12 @@
         <% } %>
       <% } else if (results) { %>
         <div class="alert alert-warning mt-4">
-          検索結果が見つかりませんでした。
+          No search results were found.
         </div>
       <% } %>
     </section>
   </main>
+
   <script>
     const uploadForm = document.getElementById('upload-form');
     const uploadButton = document.getElementById('upload-button');
@@ -193,14 +194,14 @@
 
     uploadForm.addEventListener('submit', function () {
       uploadButton.disabled = true;
-      uploadButton.textContent = '処理中...';
+      uploadButton.textContent = 'Processing...';
       uploadLoading.style.display = 'block';
     });
 
-    // Evita que el spinner permanezca visible al volver atrás
+    // Prevent the spinner from remaining visible when returning to the page.
     window.addEventListener('pageshow', function () {
       uploadButton.disabled = false;
-      uploadButton.textContent = 'アップロードして処理';
+      uploadButton.textContent = 'Upload and Process';
       uploadLoading.style.display = 'none';
     });
   </script>

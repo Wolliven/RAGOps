@@ -29,7 +29,7 @@ db.serialize(() => {
 const upload = multer({
   storage: multer.memoryStorage(),
 
-  // Optional: maximum file size of 15 MB.
+  // Maximum file size of 15 MB.
   limits: {
     fileSize: 15 * 1024 * 1024
   },
@@ -40,7 +40,7 @@ const upload = multer({
 
     if (!allowedExtensions.has(extension)) {
       callback(
-        new Error('TXT、Markdown、PDFファイルを選択してください。')
+        new Error('Please select a TXT, Markdown, or PDF file.')
       );
       return;
     }
@@ -93,7 +93,7 @@ router.post('/upload', (req, res) => {
 
     if (!req.file) {
       renderSearch(res, {
-        upload_error: 'ファイルを選択してください。'
+        upload_error: 'Please select a file.'
       });
       return;
     }
@@ -137,7 +137,8 @@ router.post('/upload', (req, res) => {
       }
 
       renderSearch(res, {
-        upload_message: `${req.file.originalname} をアップロードしました。`,
+        upload_message:
+          `${req.file.originalname} was uploaded and processed successfully.`,
         upload_data: data
       });
     } catch (err) {
@@ -145,7 +146,7 @@ router.post('/upload', (req, res) => {
 
       renderSearch(res, {
         upload_error:
-          'アップロードに失敗しました。FastAPIサーバーが起動しているか確認してください。'
+          'The upload failed. Make sure the FastAPI server is running.'
       });
     }
   });
@@ -165,7 +166,7 @@ router.post('/search', async (req, res) => {
     renderSearch(res, {
       query: '',
       top_k,
-      error: '質問を入力してください。'
+      error: 'Please enter a question.'
     });
     return;
   }
@@ -214,7 +215,7 @@ router.post('/search', async (req, res) => {
       query,
       top_k,
       error:
-        '検索に失敗しました。FastAPIサーバーが起動しているか確認してください。'
+        'The search failed. Make sure the FastAPI server is running.'
     });
   }
 });
