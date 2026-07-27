@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        crossorigin="anonymous">
+
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body class="container">
+  <header class="mt-4 mb-4">
+    <h1 class="display-4">RAGOps Web Manager</h1>
+    <p>文書の内容を意味で検索するWebアプリ</p>
+
+    <a href="/ragops/history" class="btn btn-secondary">検索履歴</a>
+  </header>
+
+  <main>
+    <h2>Semantic Search</h2>
+
+    <% if (error) { %>
+      <div class="alert alert-danger">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form method="post" action="/ragops/search">
+      <div class="form-group">
+        <label for="query">質問</label>
+        <input type="text"
+               name="query"
+               id="query"
+               value="<%= query %>"
+               class="form-control"
+               placeholder="文書について質問してください">
+      </div>
+
+      <div class="form-group">
+        <label for="top_k">結果数</label>
+        <input type="number"
+               name="top_k"
+               id="top_k"
+               value="<%= top_k %>"
+               min="1"
+               max="10"
+               class="form-control">
+      </div>
+
+      <input type="submit" value="検索" class="btn btn-primary">
+    </form>
+
+    <% if (results) { %>
+      <hr>
+
+      <h2>検索結果</h2>
+
+      <% for (var i = 0; i < results.length; i++) { %>
+        <% var result = results[i]; %>
+
+        <div class="card mt-3">
+          <div class="card-header">
+            Result <%= i + 1 %>
+            |
+            Score:
+            <% if (result.semantic_score) { %>
+              <%= result.semantic_score.toFixed(4) %>
+            <% } else { %>
+              <%= result.score %>
+            <% } %>
+            |
+            Source: <%= result.source_file %>
+            |
+            Chunk: <%= result.chunk_id %>
+          </div>
+
+          <div class="card-body">
+            <p><%= result.text %></p>
+          </div>
+        </div>
+      <% } %>
+    <% } %>
+  </main>
+</body>
+</html>

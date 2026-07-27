@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
 
 # Virtual environments
 .venv/
@@ -11,6 +12,7 @@ env/
 
 # Environment variables
 .env
+*.env
 
 # IDE
 .vscode/
@@ -19,14 +21,26 @@ env/
 .DS_Store
 Thumbs.db
 
+
 # Project data
 data/uploads/*
 data/processed/*
 data/embeddings/*
 data/chunks/*
+*.pkl
 
 # Keep empty folders
 !data/uploads/.gitkeep
 !data/processed/.gitkeep
 !data/chunks/.gitkeep
 !data/embeddings/.gitkeep
+
+# Node / Express
+frontend/node_modules/
+node_modules/
+frontend/npm-debug.log*
+
+# Databases / generated files
+*.db
+*.sqlite
+*.sqlite3
