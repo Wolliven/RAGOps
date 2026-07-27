@@ -43,6 +43,7 @@
       <% } %>
 
       <form
+        id="upload-form"
         method="post"
         action="/ragops/upload"
         enctype="multipart/form-data"
@@ -60,10 +61,31 @@
           >
         </div>
 
-        <button type="submit" class="btn btn-success">
+        <button
+          type="submit"
+          id="upload-button"
+          class="btn btn-success"
+        >
           アップロードして処理
         </button>
       </form>
+
+      <div
+        id="upload-loading"
+        class="mt-3"
+        style="display: none;"
+      >
+        <div
+          class="spinner-border spinner-border-sm text-primary"
+          role="status"
+        >
+          <span class="sr-only">Loading...</span>
+        </div>
+
+        <span class="ml-2">
+          文書を処理しています。しばらくお待ちください。
+        </span>
+      </div>
 
       <% if (upload_data) { %>
         <div class="card mt-3">
@@ -164,5 +186,23 @@
       <% } %>
     </section>
   </main>
+  <script>
+    const uploadForm = document.getElementById('upload-form');
+    const uploadButton = document.getElementById('upload-button');
+    const uploadLoading = document.getElementById('upload-loading');
+
+    uploadForm.addEventListener('submit', function () {
+      uploadButton.disabled = true;
+      uploadButton.textContent = '処理中...';
+      uploadLoading.style.display = 'block';
+    });
+
+    // Evita que el spinner permanezca visible al volver atrás
+    window.addEventListener('pageshow', function () {
+      uploadButton.disabled = false;
+      uploadButton.textContent = 'アップロードして処理';
+      uploadLoading.style.display = 'none';
+    });
+  </script>
 </body>
 </html>
