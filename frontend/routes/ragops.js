@@ -16,6 +16,10 @@ db.serialize(() => {
   `);
 });
 
+router.get('/', (req, res) => {
+  res.redirect('/ragops/search');
+});
+
 router.get('/search', (req, res) => {
   res.render('ragops/search', {
     title: 'RAGOps Search',
