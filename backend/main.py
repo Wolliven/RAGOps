@@ -16,19 +16,16 @@ import re
 from backend.retrieval.semantic import search_chunks
 from backend.retrieval.bm25 import build_bm25_index, search_bm25
 from backend.retrieval.fusion import reciprocal_rank_fusion
+from backend.core.config import (
+    UPLOAD_DIR,
+    PROCESSED_DIR,
+    CHUNKS_DIR,
+    EMBEDDINGS_DIR,
+    EMBEDDING_MODEL_NAME,
+    create_data_directories,
+)
 
-UPLOAD_DIR = Path("data/uploads")
-PROCESSED_DIR = Path("data/processed")
-CHUNKS_DIR = Path("data/chunks")
-EMBEDDINGS_DIR = Path("data/embeddings")
-
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-CHUNKS_DIR.mkdir(parents=True, exist_ok=True)
-EMBEDDINGS_DIR.mkdir(parents=True, exist_ok=True)
-
-# EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-EMBEDDING_MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+create_data_directories()
 
 @lru_cache(maxsize=1)
 def get_embedding_model():
@@ -190,7 +187,7 @@ def search(request: SearchRequest):
     fused_results = reciprocal_rank_fusion(
         semantic_results= semantic_results,
         bm25_results= bm25_results,
-        top_k=request.top_k
+        top_k=top_k
         )
 
     return {
