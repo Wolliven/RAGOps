@@ -29,6 +29,7 @@ from backend.services.embedding_service import (
     embed_chunks,
     get_embedding_model,
 )
+from backend.storage.file_store import load_all_embedded_chunks
 
 create_data_directories()
 
@@ -192,13 +193,3 @@ def search(request: SearchRequest):
         "query": request.query,
         "results": fused_results
     }
-
-def load_all_embedded_chunks() -> list[dict]:
-    all_chunks = []
-
-    for embeddings_path in EMBEDDINGS_DIR.glob("*.json"):
-        json_text = embeddings_path.read_text(encoding="utf-8")
-        chunks = json.loads(json_text)
-        all_chunks.extend(chunks)
-
-    return all_chunks
