@@ -5,20 +5,11 @@ Handles document uploads, text extraction, chunk creation,
 embedding generation, and search API endpoints.
 """
 from fastapi import FastAPI, UploadFile, File, HTTPException
-import shutil
-import json
 
 from backend.retrieval.semantic import search_chunks
 from backend.retrieval.bm25 import build_bm25_index, search_bm25
 from backend.retrieval.fusion import reciprocal_rank_fusion
-from backend.core.config import (
-    UPLOAD_DIR,
-    PROCESSED_DIR,
-    CHUNKS_DIR,
-    EMBEDDINGS_DIR,
-    EMBEDDING_MODEL_NAME,
-    create_data_directories,
-)
+from backend.core.config import create_data_directories
 from backend.schemas.search import SearchRequest
 from backend.processing.extractors import extract_text_from_file
 from backend.processing.chunking import (
@@ -29,8 +20,13 @@ from backend.services.embedding_service import (
     embed_chunks,
     get_embedding_model,
 )
-from backend.storage.file_store import load_all_embedded_chunks
-
+from backend.storage.file_store import (
+    save_uploaded_file,
+    save_processed_text,
+    save_chunks,
+    save_embeddings,
+    load_all_embedded_chunks,
+)
 create_data_directories()
 
 
@@ -114,36 +110,44 @@ def compare_search_endpoint(request: SearchRequest):
 
 @app.post("/upload")
 def upload_file(file: UploadFile = File(...)):
-    file_path = UPLOAD_DIR / file.filename
-
-    with file_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    file_path = save_uploaded_file(
+        filename=file.filename,
+        file_object=file.file,
+    )
 
     text = extract_text_from_file(file_path)
+
     if not text.strip():
         raise HTTPException(
             status_code=400,
-            detail="No text could be extracted from this file."
+            detail="No text could be extracted from this file.",
         )
-    processed_path = PROCESSED_DIR / f"{file_path.stem}.txt"
-    processed_path.write_text(text, encoding="utf-8")
-    chunks = chunk_text(text)
+
     document_id = file_path.stem
-    chunk_data = create_chunk_metadata(chunks=chunks, document_id=document_id, source_file=file.filename)
 
-    chunks_path = CHUNKS_DIR / f"{file_path.stem}.json"
+    processed_path = save_processed_text(
+        document_id=document_id,
+        text=text,
+    )
 
-    chunks_path.write_text(
-        json.dumps(chunk_data, ensure_ascii=False, indent=2),
-        encoding="utf-8"
+    chunks = chunk_text(text)
+
+    chunk_data = create_chunk_metadata(
+        chunks=chunks,
+        document_id=document_id,
+        source_file=file.filename,
+    )
+
+    save_chunks(
+        document_id=document_id,
+        chunks=chunk_data,
     )
 
     embedded_chunks = embed_chunks(chunk_data)
 
-    embeddings_path = EMBEDDINGS_DIR / f"{file_path.stem}.json"
-    embeddings_path.write_text(
-        json.dumps(embedded_chunks, ensure_ascii=False, indent=2),
-        encoding="utf-8"
+    embeddings_path = save_embeddings(
+        document_id=document_id,
+        embedded_chunks=embedded_chunks,
     )
 
     return {
@@ -153,7 +157,11 @@ def upload_file(file: UploadFile = File(...)):
         "processed_path": str(processed_path),
         "characters": len(text),
         "embeddings_path": str(embeddings_path),
-        "embedding_dimensions": len(embedded_chunks[0]["embedding"]) if embedded_chunks else 0
+        "embedding_dimensions": (
+            len(embedded_chunks[0]["embedding"])
+            if embedded_chunks
+            else 0
+        ),
     }
 
 @app.post("/search")
