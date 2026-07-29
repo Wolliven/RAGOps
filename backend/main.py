@@ -6,16 +6,17 @@ embedding generation, and search API endpoints.
 """
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
-from backend.retrieval.semantic import search_chunks
-from backend.retrieval.bm25 import build_bm25_index, search_bm25
-from backend.retrieval.fusion import reciprocal_rank_fusion
 from backend.core.config import create_data_directories
 from backend.schemas.search import SearchRequest
-from backend.services.embedding_service import get_embedding_model
-from backend.storage.file_store import load_all_embedded_chunks
 from backend.services.ingestion_service import (
     ingest_document,
     EmptyDocumentError,
+)
+from backend.services.search_service import (
+    bm25_search,
+    compare_search_methods,
+    hybrid_search,
+    NoIndexedChunksError,
 )
 
 create_data_directories()
@@ -34,68 +35,29 @@ def health_check():
 
 @app.post("/search/bm25")
 def bm25_search_endpoint(request: SearchRequest):
-    chunks = load_all_embedded_chunks()
-
-    if not chunks:
+    try:
+        return bm25_search(
+            query=request.query,
+            top_k=request.top_k,
+        )
+    except NoIndexedChunksError as error:
         raise HTTPException(
             status_code=404,
-            detail="No indexed chunks found."
-        )
-
-    top_k = min(max(request.top_k, 1), 20)
-
-    retriever = build_bm25_index(chunks)
-
-    results = search_bm25(
-        query=request.query,
-        retriever=retriever,
-        top_k=top_k
-    )
-
-    return {
-        "query": request.query,
-        "results": results
-    }
+            detail="No indexed chunks found.",
+        ) from error
 
 @app.post("/search/compare")
 def compare_search_endpoint(request: SearchRequest):
-    chunks = load_all_embedded_chunks()
-
-    if not chunks:
+    try:
+        return compare_search_methods(
+            query=request.query,
+            top_k=request.top_k,
+        )
+    except NoIndexedChunksError as error:
         raise HTTPException(
             status_code=404,
-            detail="No indexed chunks found."
-        )
-
-    top_k = min(max(request.top_k, 1), 20)
-
-    semantic_results = search_chunks(
-        query=request.query,
-        embedded_chunks=chunks,
-        model=get_embedding_model(),
-        top_k=top_k
-    )
-
-    bm25_retriever = build_bm25_index(chunks)
-
-    bm25_results = search_bm25(
-        query=request.query,
-        retriever=bm25_retriever,
-        top_k=top_k
-    )
-
-    fused_results = reciprocal_rank_fusion(
-        semantic_results= semantic_results,
-        bm25_results= bm25_results,
-        top_k=request.top_k
-        )
-
-    return {
-        "query": request.query,
-        "semantic_results": semantic_results,
-        "bm25_results": bm25_results,
-        "hybrid_results": fused_results
-}   
+            detail="No indexed chunks found.",
+        ) from error  
 
 
 
@@ -114,38 +76,16 @@ def upload_file(file: UploadFile = File(...)):
 
 @app.post("/search")
 def search(request: SearchRequest):
-    embedded_chunks = load_all_embedded_chunks()
-
-    if not embedded_chunks:
+    try:
+        return hybrid_search(
+            query=request.query,
+            top_k=request.top_k,
+        )
+    except NoIndexedChunksError as error:
         raise HTTPException(
             status_code=404,
-            detail="No embeddings found. Upload and process a document first."
-        )
-
-    top_k = min(max(request.top_k, 1), 20)
-
-    semantic_results = search_chunks(
-        query=request.query,
-        embedded_chunks=embedded_chunks,
-        model=get_embedding_model(),
-        top_k=20
-    )
-
-    bm25_retriever = build_bm25_index(embedded_chunks)
-
-    bm25_results = search_bm25(
-        query=request.query,
-        retriever=bm25_retriever,
-        top_k=20
-    )
-
-    fused_results = reciprocal_rank_fusion(
-        semantic_results= semantic_results,
-        bm25_results= bm25_results,
-        top_k=top_k
-        )
-
-    return {
-        "query": request.query,
-        "results": fused_results
-    }
+            detail=(
+                "No embeddings found. "
+                "Upload and process a document first."
+            ),
+        ) from error
