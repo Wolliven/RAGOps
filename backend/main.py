@@ -11,22 +11,13 @@ from backend.retrieval.bm25 import build_bm25_index, search_bm25
 from backend.retrieval.fusion import reciprocal_rank_fusion
 from backend.core.config import create_data_directories
 from backend.schemas.search import SearchRequest
-from backend.processing.extractors import extract_text_from_file
-from backend.processing.chunking import (
-    chunk_text,
-    create_chunk_metadata,
+from backend.services.embedding_service import get_embedding_model
+from backend.storage.file_store import load_all_embedded_chunks
+from backend.services.ingestion_service import (
+    ingest_document,
+    EmptyDocumentError,
 )
-from backend.services.embedding_service import (
-    embed_chunks,
-    get_embedding_model,
-)
-from backend.storage.file_store import (
-    save_uploaded_file,
-    save_processed_text,
-    save_chunks,
-    save_embeddings,
-    load_all_embedded_chunks,
-)
+
 create_data_directories()
 
 
@@ -110,59 +101,16 @@ def compare_search_endpoint(request: SearchRequest):
 
 @app.post("/upload")
 def upload_file(file: UploadFile = File(...)):
-    file_path = save_uploaded_file(
-        filename=file.filename,
-        file_object=file.file,
-    )
-
-    text = extract_text_from_file(file_path)
-
-    if not text.strip():
+    try:
+        return ingest_document(
+            filename=file.filename,
+            file_object=file.file,
+        )
+    except EmptyDocumentError as error:
         raise HTTPException(
             status_code=400,
-            detail="No text could be extracted from this file.",
-        )
-
-    document_id = file_path.stem
-
-    processed_path = save_processed_text(
-        document_id=document_id,
-        text=text,
-    )
-
-    chunks = chunk_text(text)
-
-    chunk_data = create_chunk_metadata(
-        chunks=chunks,
-        document_id=document_id,
-        source_file=file.filename,
-    )
-
-    save_chunks(
-        document_id=document_id,
-        chunks=chunk_data,
-    )
-
-    embedded_chunks = embed_chunks(chunk_data)
-
-    embeddings_path = save_embeddings(
-        document_id=document_id,
-        embedded_chunks=embedded_chunks,
-    )
-
-    return {
-        "message": "File uploaded successfully",
-        "filename": file.filename,
-        "saved_path": str(file_path),
-        "processed_path": str(processed_path),
-        "characters": len(text),
-        "embeddings_path": str(embeddings_path),
-        "embedding_dimensions": (
-            len(embedded_chunks[0]["embedding"])
-            if embedded_chunks
-            else 0
-        ),
-    }
+            detail=str(error),
+        ) from error
 
 @app.post("/search")
 def search(request: SearchRequest):
