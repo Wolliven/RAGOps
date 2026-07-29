@@ -7,8 +7,6 @@ embedding generation, and search API endpoints.
 from fastapi import FastAPI, UploadFile, File, HTTPException
 import shutil
 import json
-from sentence_transformers import SentenceTransformer
-from functools import lru_cache
 
 from backend.retrieval.semantic import search_chunks
 from backend.retrieval.bm25 import build_bm25_index, search_bm25
@@ -27,12 +25,12 @@ from backend.processing.chunking import (
     chunk_text,
     create_chunk_metadata,
 )
+from backend.services.embedding_service import (
+    embed_chunks,
+    get_embedding_model,
+)
 
 create_data_directories()
-
-@lru_cache(maxsize=1)
-def get_embedding_model():
-    return SentenceTransformer(EMBEDDING_MODEL_NAME)
 
 
 app = FastAPI()
@@ -194,24 +192,6 @@ def search(request: SearchRequest):
         "query": request.query,
         "results": fused_results
     }
-
-def embed_chunks(chunk_data: list[dict]) -> list[dict]:
-    texts = []
-
-    for chunk in chunk_data:
-        texts.append(chunk["text"])
-
-    model = get_embedding_model()
-    embeddings = model.encode(texts)
-
-    embedded_chunks = []
-
-    for chunk, embedding in zip(chunk_data, embeddings):
-        embedded_chunk = chunk.copy()
-        embedded_chunk["embedding"] = embedding.tolist()
-        embedded_chunks.append(embedded_chunk)
-
-    return embedded_chunks
 
 def load_all_embedded_chunks() -> list[dict]:
     all_chunks = []
