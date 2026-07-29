@@ -8,11 +8,11 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from pathlib import Path
 import shutil
 import json
-from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 from functools import lru_cache
 from pypdf import PdfReader
 import re
+
 from backend.retrieval.semantic import search_chunks
 from backend.retrieval.bm25 import build_bm25_index, search_bm25
 from backend.retrieval.fusion import reciprocal_rank_fusion
@@ -24,6 +24,7 @@ from backend.core.config import (
     EMBEDDING_MODEL_NAME,
     create_data_directories,
 )
+from backend.schemas.search import SearchRequest
 
 create_data_directories()
 
@@ -34,9 +35,6 @@ def get_embedding_model():
 
 app = FastAPI()
 
-class SearchRequest(BaseModel):
-    query: str
-    top_k: int = 3
 
 @app.get("/")
 def read_root():
