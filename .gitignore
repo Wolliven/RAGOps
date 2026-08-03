@@ -27,6 +27,7 @@ data/uploads/*
 data/processed/*
 data/embeddings/*
 data/chunks/*
+data/documents/*
 *.pkl
 
 # Keep empty folders
@@ -34,6 +35,7 @@ data/chunks/*
 !data/processed/.gitkeep
 !data/chunks/.gitkeep
 !data/embeddings/.gitkeep
+!data/documents/.gitkeep
 
 # Node / Express
 frontend/node_modules/

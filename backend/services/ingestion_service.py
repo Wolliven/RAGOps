@@ -1,6 +1,7 @@
 """Service for processing uploaded documents."""
 
 from typing import BinaryIO
+from datetime import datetime, timezone
 
 from backend.processing.chunking import (
     chunk_text,
@@ -13,6 +14,7 @@ from backend.storage.file_store import (
     save_processed_text,
     save_chunks,
     save_embeddings,
+    save_document_metadata,
 )
 
 
@@ -65,6 +67,29 @@ def ingest_document(
         embedded_chunks=embedded_chunks,
     )
 
+    embedding_dimensions = (
+        len(embedded_chunks[0]["embedding"])
+        if embedded_chunks
+        else 0
+    )
+
+    metadata = {
+        "document_id": document_id,
+        "filename": filename,
+        "uploaded_at": datetime.now(timezone.utc).isoformat(),
+        "file_type": file_path.suffix.lower(),
+        "technical": {
+            "characters": len(text),
+            "chunk_count": len(chunk_data),
+            "embedding_dimensions": embedding_dimensions,
+        },
+    }
+
+    save_document_metadata(
+        document_id=document_id,
+        metadata=metadata,
+    )
+
     return {
         "message": "File uploaded successfully",
         "filename": filename,
@@ -72,9 +97,5 @@ def ingest_document(
         "processed_path": str(processed_path),
         "characters": len(text),
         "embeddings_path": str(embeddings_path),
-        "embedding_dimensions": (
-            len(embedded_chunks[0]["embedding"])
-            if embedded_chunks
-            else 0
-        ),
+        "embedding_dimensions": embedding_dimensions,
     }
