@@ -10,6 +10,7 @@ from backend.core.config import (
     PROCESSED_DIR,
     CHUNKS_DIR,
     EMBEDDINGS_DIR,
+    DOCUMENTS_DIR,
 )
 
 
@@ -65,6 +66,36 @@ def save_embeddings(
     )
 
 
+def save_document_metadata(
+    document_id: str,
+    metadata: dict,
+) -> Path:
+    """Save metadata describing an indexed document."""
+
+    return _save_json(
+        directory=DOCUMENTS_DIR,
+        document_id=document_id,
+        data=metadata,
+    )
+
+
+def list_document_metadata() -> list[dict]:
+    """Load metadata for all indexed documents."""
+
+    documents = []
+
+    for metadata_path in DOCUMENTS_DIR.glob("*.json"):
+        json_text = metadata_path.read_text(encoding="utf-8")
+        metadata = json.loads(json_text)
+        documents.append(metadata)
+
+    return sorted(
+        documents,
+        key=lambda document: document.get("uploaded_at", ""),
+        reverse=True,
+    )
+
+
 def load_all_embedded_chunks() -> list[dict]:
     """Load embedded chunks from every saved JSON file."""
 
@@ -81,7 +112,7 @@ def load_all_embedded_chunks() -> list[dict]:
 def _save_json(
     directory: Path,
     document_id: str,
-    data: list[dict],
+    data: dict | list[dict],
 ) -> Path:
     """Save data as a formatted JSON file."""
 
