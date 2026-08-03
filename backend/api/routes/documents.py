@@ -6,10 +6,19 @@ from backend.services.ingestion_service import (
     EmptyDocumentError,
     ingest_document,
 )
+from backend.storage.file_store import list_document_metadata
 
 
 router = APIRouter(tags=["documents"])
 
+@router.get("/documents")
+def list_documents():
+    documents = list_document_metadata()
+
+    return {
+        "documents": documents,
+        "count": len(documents),
+    }
 
 @router.post("/upload")
 def upload_file(file: UploadFile = File(...)):
