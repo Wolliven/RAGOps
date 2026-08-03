@@ -8,3 +8,4 @@ class SearchRequest(BaseModel):
 
     query: str
     top_k: int = 3
+    document_ids: list[str] | None = None
