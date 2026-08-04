@@ -185,7 +185,25 @@
         </div>
       <% } %>
 
-      <form method="post" action="/ragops/search">
+      <form
+        id="search-form"
+        method="post"
+        action="/ragops/search"
+      >
+        <input
+          type="hidden"
+          name="document_ids_json"
+          id="document-ids-input"
+          value="<%= JSON.stringify(selected_document_ids) %>"
+        >
+
+        <div
+          id="selection-error"
+          class="alert alert-warning"
+          style="display: none;"
+        >
+          Select at least one document before searching.
+        </div>
         <div class="form-group">
           <label for="query">Question</label>
 
@@ -276,6 +294,11 @@
     const selectAllButton = document.getElementById('select-all-button');
     const deselectAllButton = document.getElementById('deselect-all-button');
 
+    const searchForm = document.getElementById('search-form');
+    const documentIdsInput = document.getElementById('document-ids-input');
+    const selectionError = document.getElementById('selection-error');
+    const initialSelectedDocumentIds = JSON.parse(documentIdsInput.value);
+
 
     function formatUploadDate(uploadedAt) {
       if (!uploadedAt) {
@@ -351,7 +374,11 @@
           'custom-control-input document-checkbox';
         checkbox.id = `document-checkbox-${index}`;
         checkbox.value = documentData.document_id;
-        checkbox.checked = true;
+        checkbox.checked =
+        initialSelectedDocumentIds === null ||
+        initialSelectedDocumentIds.includes(
+          documentData.document_id
+        );
 
         checkbox.addEventListener('change', updateSelectionCount);
 
@@ -455,6 +482,26 @@
       }
 
       updateSelectionCount();
+    });
+
+    searchForm.addEventListener('submit', function (event) {
+      const selectedDocumentIds = Array.from(
+        document.querySelectorAll(
+          '.document-checkbox:checked'
+        )
+      ).map(checkbox => checkbox.value);
+
+      if (selectedDocumentIds.length === 0) {
+        event.preventDefault();
+
+        selectionError.style.display = 'block';
+        return;
+      }
+
+      selectionError.style.display = 'none';
+
+      documentIdsInput.value =
+        JSON.stringify(selectedDocumentIds);
     });
 
 

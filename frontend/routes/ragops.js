@@ -64,6 +64,7 @@ function renderSearch(res, values = {}) {
     upload_message: null,
     upload_error: null,
     upload_data: null,
+    selected_document_ids: null,
     ...values
   });
 }
@@ -186,10 +187,55 @@ router.post('/search', async (req, res) => {
     ? Math.min(10, Math.max(1, requestedTopK))
     : 3;
 
+  let document_ids;
+
+  try {
+    document_ids = JSON.parse(
+      String(req.body.document_ids_json || '[]')
+    );
+  } catch {
+    renderSearch(res, {
+      query,
+      top_k,
+      selected_document_ids: [],
+      error: 'The document selection is invalid.'
+    });
+    return;
+  }
+
+  if (!Array.isArray(document_ids)) {
+    renderSearch(res, {
+      query,
+      top_k,
+      selected_document_ids: [],
+      error: 'The document selection is invalid.'
+    });
+    return;
+  }
+
+  document_ids = [
+    ...new Set(
+      document_ids
+        .map(documentId => String(documentId).trim())
+        .filter(documentId => documentId !== '')
+    )
+  ];
+
+  if (document_ids.length === 0) {
+    renderSearch(res, {
+      query,
+      top_k,
+      selected_document_ids: [],
+      error: 'Select at least one document.'
+    });
+    return;
+  }
+
   if (query === '') {
     renderSearch(res, {
       query: '',
       top_k,
+      selected_document_ids: document_ids,
       error: 'Please enter a question.'
     });
     return;
@@ -203,7 +249,8 @@ router.post('/search', async (req, res) => {
       },
       body: JSON.stringify({
         query,
-        top_k
+        top_k,
+        document_ids
       })
     });
 
@@ -230,6 +277,7 @@ router.post('/search', async (req, res) => {
     renderSearch(res, {
       query,
       top_k,
+      selected_document_ids: document_ids,
       results: data.results
     });
   } catch (err) {
@@ -238,6 +286,7 @@ router.post('/search', async (req, res) => {
     renderSearch(res, {
       query,
       top_k,
+      selected_document_ids: document_ids,
       error:
         'The search failed. Make sure the FastAPI server is running.'
     });
