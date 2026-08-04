@@ -78,6 +78,30 @@ router.get('/search', (req, res) => {
   renderSearch(res);
 });
 
+/*
+ * Return indexed documents from FastAPI to the browser.
+ * The browser talks only to Express, avoiding cross-origin requests.
+ */
+router.get('/documents', async (req, res) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/documents`);
+
+    if (!response.ok) {
+      const responseText = await response.text();
+      throw new Error(responseText);
+    }
+
+    const data = await response.json();
+
+    res.json(data);
+  } catch (err) {
+    console.error('Could not load indexed documents:', err);
+
+    res.status(502).json({
+      error: 'Could not load indexed documents.'
+    });
+  }
+});
 
 /*
  * Receive a file from the browser and forward it to FastAPI.
