@@ -110,12 +110,39 @@
           </p>
         </div>
 
-        <span
-          id="document-count"
-          class="badge badge-secondary"
-        >
-          0 documents
-        </span>
+        <div class="text-right">
+          <div class="mb-2">
+            <button
+              type="button"
+              id="select-all-button"
+              class="btn btn-sm btn-outline-primary"
+            >
+              Select all
+            </button>
+
+            <button
+              type="button"
+              id="deselect-all-button"
+              class="btn btn-sm btn-outline-secondary"
+            >
+              Deselect all
+            </button>
+          </div>
+
+          <span
+            id="document-count"
+            class="badge badge-secondary"
+          >
+            0 documents
+          </span>
+
+          <span
+            id="selected-count"
+            class="badge badge-primary ml-1"
+          >
+            0 selected
+          </span>
+        </div>
       </div>
 
       <div id="documents-loading" class="text-muted">
@@ -245,6 +272,9 @@
     const documentsEmpty = document.getElementById('documents-empty');
     const documentsList = document.getElementById('documents-list');
     const documentCount = document.getElementById('document-count');
+    const selectedCount = document.getElementById('selected-count');
+    const selectAllButton = document.getElementById('select-all-button');
+    const deselectAllButton = document.getElementById('deselect-all-button');
 
 
     function formatUploadDate(uploadedAt) {
@@ -265,9 +295,28 @@
       })}`;
     }
 
+    function updateSelectionCount() {
+      const checkboxes = Array.from(
+        document.querySelectorAll('.document-checkbox')
+      );
+
+      const selectedCheckboxes = checkboxes.filter(
+        checkbox => checkbox.checked
+      );
+
+      selectedCount.textContent =
+        `${selectedCheckboxes.length} selected`;
+
+      selectAllButton.disabled =
+        checkboxes.length === 0 ||
+        selectedCheckboxes.length === checkboxes.length;
+
+      deselectAllButton.disabled =
+        checkboxes.length === 0 ||
+        selectedCheckboxes.length === 0;
+    }
 
     function renderDocuments(documents) {
-      // Remove the previous list before rendering it again.
       documentsList.innerHTML = '';
 
       documentCount.textContent =
@@ -275,18 +324,47 @@
 
       if (documents.length === 0) {
         documentsEmpty.style.display = 'block';
+        updateSelectionCount();
         return;
       }
 
       documentsEmpty.style.display = 'none';
 
-      for (const documentData of documents) {
+      for (const [index, documentData] of documents.entries()) {
         const card = document.createElement('div');
         card.className = 'card mb-2';
 
         const body = document.createElement('div');
         body.className =
           'card-body d-flex justify-content-between align-items-center';
+
+        const leftSide = document.createElement('div');
+        leftSide.className = 'd-flex align-items-start';
+
+        const checkboxContainer = document.createElement('div');
+        checkboxContainer.className =
+          'custom-control custom-checkbox mr-3 mt-1';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className =
+          'custom-control-input document-checkbox';
+        checkbox.id = `document-checkbox-${index}`;
+        checkbox.value = documentData.document_id;
+        checkbox.checked = true;
+
+        checkbox.addEventListener('change', updateSelectionCount);
+
+        const checkboxLabel = document.createElement('label');
+        checkboxLabel.className = 'custom-control-label';
+        checkboxLabel.htmlFor = checkbox.id;
+        checkboxLabel.setAttribute(
+          'aria-label',
+          `Select ${documentData.filename}`
+        );
+
+        checkboxContainer.appendChild(checkbox);
+        checkboxContainer.appendChild(checkboxLabel);
 
         const information = document.createElement('div');
 
@@ -307,12 +385,17 @@
           ? documentData.file_type.replace('.', '').toUpperCase()
           : 'FILE';
 
-        body.appendChild(information);
+        leftSide.appendChild(checkboxContainer);
+        leftSide.appendChild(information);
+
+        body.appendChild(leftSide);
         body.appendChild(typeBadge);
 
         card.appendChild(body);
         documentsList.appendChild(card);
       }
+
+      updateSelectionCount();
     }
 
 
@@ -349,6 +432,29 @@
       uploadButton.disabled = true;
       uploadButton.textContent = 'Processing...';
       uploadLoading.style.display = 'block';
+    });
+
+    selectAllButton.addEventListener('click', function () {
+      const checkboxes =
+        document.querySelectorAll('.document-checkbox');
+
+      for (const checkbox of checkboxes) {
+        checkbox.checked = true;
+      }
+
+      updateSelectionCount();
+    });
+
+
+    deselectAllButton.addEventListener('click', function () {
+      const checkboxes =
+        document.querySelectorAll('.document-checkbox');
+
+      for (const checkbox of checkboxes) {
+        checkbox.checked = false;
+      }
+
+      updateSelectionCount();
     });
 
 
