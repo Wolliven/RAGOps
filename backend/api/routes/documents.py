@@ -7,6 +7,10 @@ from backend.services.ingestion_service import (
     ingest_document,
 )
 from backend.storage.file_store import list_document_metadata
+from backend.services.document_service import (
+    DocumentNotFoundError,
+    delete_indexed_document,
+)
 
 
 router = APIRouter(tags=["documents"])
@@ -28,6 +32,23 @@ def upload_file(file: UploadFile = File(...)):
             file_object=file.file,
         )
     except EmptyDocumentError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+@router.delete("/documents/{document_id}")
+def delete_document(document_id: str):
+    try:
+        return delete_indexed_document(document_id)
+
+    except DocumentNotFoundError as error:
+        raise HTTPException(
+            status_code=404,
+            detail="Indexed document not found.",
+        ) from error
+
+    except ValueError as error:
         raise HTTPException(
             status_code=400,
             detail=str(error),

@@ -95,6 +95,45 @@ def list_document_metadata() -> list[dict]:
         reverse=True,
     )
 
+def delete_document_data(document_id: str) -> dict | None:
+    """Delete all files associated with an indexed document."""
+
+    _validate_document_id(document_id)
+
+    metadata_path = DOCUMENTS_DIR / f"{document_id}.json"
+
+    if not metadata_path.exists():
+        return None
+
+    metadata = json.loads(
+        metadata_path.read_text(encoding="utf-8")
+    )
+
+    filename = Path(metadata["filename"]).name
+
+    document_paths = [
+        UPLOAD_DIR / filename,
+        PROCESSED_DIR / f"{document_id}.txt",
+        CHUNKS_DIR / f"{document_id}.json",
+        EMBEDDINGS_DIR / f"{document_id}.json",
+    ]
+
+    deleted_files = []
+
+    for file_path in document_paths:
+        if file_path.exists():
+            file_path.unlink()
+            deleted_files.append(str(file_path))
+
+    # Delete metadata last.
+    metadata_path.unlink()
+    deleted_files.append(str(metadata_path))
+
+    return {
+        "metadata": metadata,
+        "deleted_files": deleted_files,
+    }
+
 
 def load_all_embedded_chunks() -> list[dict]:
     """Load embedded chunks from every saved JSON file."""
@@ -124,3 +163,14 @@ def _save_json(
     )
 
     return file_path
+
+def _validate_document_id(document_id: str) -> None:
+    """Reject document IDs that could escape the data directories."""
+
+    if (
+        not document_id
+        or document_id in {".", ".."}
+        or "/" in document_id
+        or "\\" in document_id
+    ):
+        raise ValueError("Invalid document ID.")
