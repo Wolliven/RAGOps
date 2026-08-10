@@ -104,6 +104,46 @@ router.get('/documents', async (req, res) => {
   }
 });
 
+router.delete('/documents/:documentId', async (req, res) => {
+  const documentId = String(req.params.documentId || '').trim();
+
+  if (!documentId) {
+    res.status(400).json({
+      error: 'Invalid document ID.'
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/documents/${encodeURIComponent(documentId)}`,
+      {
+        method: 'DELETE'
+      }
+    );
+
+    const responseText = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      data = {
+        message: responseText
+      };
+    }
+
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('Could not delete indexed document:', err);
+
+    res.status(502).json({
+      error: 'Could not delete indexed document.'
+    });
+  }
+});
+
 /*
  * Receive a file from the browser and forward it to FastAPI.
  */
