@@ -46,6 +46,32 @@ def bm25_search(
         "results": results,
     }
 
+def semantic_search(
+    query: str,
+    top_k: int,
+    document_ids: list[str] | None = None,
+) -> dict:
+    """Run a semantic-only search."""
+
+    chunks = _load_indexed_chunks(document_ids)
+
+    effective_top_k = _limit_top_k_to_corpus(
+        top_k=top_k,
+        corpus_size=len(chunks),
+    )
+
+    results = search_chunks(
+        query=query,
+        embedded_chunks=chunks,
+        model=get_embedding_model(),
+        top_k=effective_top_k,
+    )
+
+    return {
+        "query": query,
+        "results": results,
+    }
+
 
 def compare_search_methods(
     query: str,
