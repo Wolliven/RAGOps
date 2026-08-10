@@ -476,6 +476,51 @@
         information.appendChild(name);
         information.appendChild(date);
 
+        const details = document.createElement('details');
+        details.className = 'mt-2';
+
+        const summary = document.createElement('summary');
+        summary.className = 'text-muted small';
+        summary.style.cursor = 'pointer';
+        summary.textContent = 'Details';
+
+        const technicalInfo = document.createElement('div');
+        technicalInfo.className = 'small text-muted mt-2';
+
+        const technical = documentData.technical || {};
+
+        const documentIdLine = document.createElement('div');
+        documentIdLine.textContent =
+          `Document ID: ${documentData.document_id}`;
+
+        const chunkLine = document.createElement('div');
+        chunkLine.textContent =
+          `Chunks: ${technical.chunk_count ?? 'N/A'}`;
+
+        const characterLine = document.createElement('div');
+        characterLine.textContent =
+          `Characters: ${
+            technical.characters != null
+              ? technical.characters.toLocaleString()
+              : 'N/A'
+          }`;
+
+        const embeddingLine = document.createElement('div');
+        embeddingLine.textContent =
+          `Embedding dimensions: ${
+            technical.embedding_dimensions ?? 'N/A'
+          }`;
+
+        technicalInfo.appendChild(documentIdLine);
+        technicalInfo.appendChild(chunkLine);
+        technicalInfo.appendChild(characterLine);
+        technicalInfo.appendChild(embeddingLine);
+
+        details.appendChild(summary);
+        details.appendChild(technicalInfo);
+
+        information.appendChild(details);
+
         const actions = document.createElement('div');
         actions.className = 'd-flex align-items-center';
 
