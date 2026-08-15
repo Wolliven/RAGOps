@@ -251,6 +251,13 @@
             >
               BM25
             </option>
+
+            <option
+              value="compare"
+              <%= search_method === 'compare' ? 'selected' : '' %>
+            >
+              Compare
+            </option>
           </select>
 
           <small class="form-text text-muted">
@@ -277,7 +284,92 @@
         </button>
       </form>
 
-      <% if (results && results.length > 0) { %>
+      <% if (search_method === 'compare' && compare_results) { %>
+
+        <hr>
+
+        <h2>Retrieval Comparison</h2>
+
+        <p class="text-muted">
+          Compare how each retrieval method ranks the same query.
+        </p>
+
+        <div class="row">
+          <%
+            const comparisonGroups = [
+              {
+                title: 'Semantic',
+                results: compare_results.semantic,
+                scoreKey: 'semantic_score',
+                scoreLabel: 'Semantic'
+              },
+              {
+                title: 'BM25',
+                results: compare_results.bm25,
+                scoreKey: 'bm25_score',
+                scoreLabel: 'BM25'
+              },
+              {
+                title: 'Hybrid',
+                results: compare_results.hybrid,
+                scoreKey: 'rrf_score',
+                scoreLabel: 'RRF'
+              }
+            ];
+          %>
+
+          <% for (const group of comparisonGroups) { %>
+            <div class="col-lg-4 mb-4">
+              <h4><%= group.title %></h4>
+
+              <% if (group.results.length === 0) { %>
+                <div class="alert alert-light border">
+                  No results.
+                </div>
+              <% } %>
+
+              <% for (let i = 0; i < group.results.length; i++) { %>
+                <% const result = group.results[i]; %>
+
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <h6 class="card-title">
+                      #<%= i + 1 %>
+                      —
+                      <%= result.source_file %>
+                    </h6>
+
+                    <p class="small text-muted mb-2">
+                      Chunk <%= result.chunk_index %>
+                      |
+                      <%= group.scoreLabel %>:
+                      <%= result[group.scoreKey] != null
+                        ? Number(result[group.scoreKey]).toFixed(4)
+                        : 'N/A'
+                      %>
+                    </p>
+
+                    <details>
+                      <summary
+                        class="small"
+                        style="cursor: pointer;"
+                      >
+                        View retrieved chunk
+                      </summary>
+
+                      <p class="mt-2 mb-0 small">
+                        <%= result.text %>
+                      </p>
+                    </details>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+
+      <% } else if (results && results.length > 0) { %>
+
         <hr>
 
         <h2>
@@ -296,8 +388,12 @@
               |
               Score:
 
-              <% if (result.semantic_score != null) { %>
+              <% if (result.rrf_score != null) { %>
+                <%= Number(result.rrf_score).toFixed(4) %>
+              <% } else if (result.semantic_score != null) { %>
                 <%= Number(result.semantic_score).toFixed(4) %>
+              <% } else if (result.bm25_score != null) { %>
+                <%= Number(result.bm25_score).toFixed(4) %>
               <% } else if (result.score != null) { %>
                 <%= Number(result.score).toFixed(4) %>
               <% } else { %>
@@ -311,17 +407,20 @@
             </div>
 
             <div class="card-body">
-              <p class="mb-0"><%= result.text %></p>
+              <p class="mb-0">
+                <%= result.text %>
+              </p>
             </div>
           </div>
         <% } %>
+
       <% } else if (results) { %>
+
         <div class="alert alert-warning mt-4">
           No search results were found.
         </div>
+
       <% } %>
-    </section>
-  </main>
 
   <script>
     // Upload elements

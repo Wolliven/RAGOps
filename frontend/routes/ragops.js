@@ -60,6 +60,7 @@ function renderSearch(res, values = {}) {
     query: '',
     top_k: 3,
     results: null,
+    compare_results: null,
     error: null,
     upload_message: null,
     upload_error: null,
@@ -227,7 +228,8 @@ router.post('/search', async (req, res) => {
   const allowedSearchMethods = new Set([
     'hybrid',
     'semantic',
-    'bm25'
+    'bm25',
+    'compare'
   ]);
 
   const requestedSearchMethod =
@@ -244,7 +246,8 @@ router.post('/search', async (req, res) => {
   const searchEndpoints = {
     hybrid: '/search',
     semantic: '/search/semantic',
-    bm25: '/search/bm25'
+    bm25: '/search/bm25',
+    compare: '/search/compare'
   };
 
   const searchEndpoint = searchEndpoints[search_method];
@@ -342,13 +345,27 @@ router.post('/search', async (req, res) => {
       }
     );
 
-    renderSearch(res, {
-      query,
-      top_k,
-      selected_document_ids: document_ids,
-      search_method,
-      results: data.results
-    });
+    if (search_method === 'compare') {
+      renderSearch(res, {
+        query,
+        top_k,
+        selected_document_ids: document_ids,
+        search_method,
+        compare_results: {
+          semantic: data.semantic_results || [],
+          bm25: data.bm25_results || [],
+          hybrid: data.hybrid_results || []
+        }
+      });
+    } else {
+      renderSearch(res, {
+        query,
+        top_k,
+        selected_document_ids: document_ids,
+        search_method,
+        results: data.results || []
+      });
+    }
   } catch (err) {
     console.error(err);
 
