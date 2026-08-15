@@ -65,6 +65,7 @@ function renderSearch(res, values = {}) {
     upload_error: null,
     upload_data: null,
     selected_document_ids: null,
+    search_method: 'hybrid',
     ...values
   });
 }
@@ -151,7 +152,7 @@ router.post('/upload', (req, res) => {
   upload.single('file')(req, res, async (uploadError) => {
     if (uploadError) {
       renderSearch(res, {
-        upload_error: uploadError.message
+        upload_error: uploadError.message,
       });
       return;
     }
@@ -223,9 +224,30 @@ router.post('/search', async (req, res) => {
 
   const requestedTopK = Number(req.body.top_k);
 
+  const allowedSearchMethods = new Set([
+    'hybrid',
+    'semantic',
+    'bm25'
+  ]);
+
+  const requestedSearchMethod =
+    String(req.body.search_method || 'hybrid');
+
+  const search_method = allowedSearchMethods.has(requestedSearchMethod)
+    ? requestedSearchMethod
+    : 'hybrid';
+
   const top_k = Number.isInteger(requestedTopK)
     ? Math.min(10, Math.max(1, requestedTopK))
     : 3;
+
+  const searchEndpoints = {
+    hybrid: '/search',
+    semantic: '/search/semantic',
+    bm25: '/search/bm25'
+  };
+
+  const searchEndpoint = searchEndpoints[search_method];
 
   let document_ids;
 
@@ -238,6 +260,7 @@ router.post('/search', async (req, res) => {
       query,
       top_k,
       selected_document_ids: [],
+      search_method,
       error: 'The document selection is invalid.'
     });
     return;
@@ -248,6 +271,7 @@ router.post('/search', async (req, res) => {
       query,
       top_k,
       selected_document_ids: [],
+      search_method,
       error: 'The document selection is invalid.'
     });
     return;
@@ -266,6 +290,7 @@ router.post('/search', async (req, res) => {
       query,
       top_k,
       selected_document_ids: [],
+      search_method,
       error: 'Select at least one document.'
     });
     return;
@@ -276,13 +301,16 @@ router.post('/search', async (req, res) => {
       query: '',
       top_k,
       selected_document_ids: document_ids,
+      search_method,
       error: 'Please enter a question.'
     });
     return;
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/search`, {
+    const response = await fetch(
+      `${API_BASE_URL}${searchEndpoint}`,
+      {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -318,6 +346,7 @@ router.post('/search', async (req, res) => {
       query,
       top_k,
       selected_document_ids: document_ids,
+      search_method,
       results: data.results
     });
   } catch (err) {
@@ -327,6 +356,7 @@ router.post('/search', async (req, res) => {
       query,
       top_k,
       selected_document_ids: document_ids,
+      search_method,
       error:
         'The search failed. Make sure the FastAPI server is running.'
     });
