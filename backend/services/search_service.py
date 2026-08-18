@@ -81,37 +81,43 @@ def compare_search_methods(
     """Return semantic, BM25, and hybrid results for comparison."""
 
     chunks = _load_indexed_chunks(document_ids)
-    effective_top_k = _limit_top_k_to_corpus(
+
+    candidate_top_k = _limit_top_k_to_corpus(
+        top_k=20,
+        corpus_size=len(chunks),
+    )
+
+    result_top_k = _limit_top_k_to_corpus(
         top_k=top_k,
         corpus_size=len(chunks),
     )
 
-    semantic_results = search_chunks(
+    semantic_candidates = search_chunks(
         query=query,
         embedded_chunks=chunks,
         model=get_embedding_model(),
-        top_k=effective_top_k,
+        top_k=candidate_top_k,
     )
 
     bm25_retriever = build_bm25_index(chunks)
 
-    bm25_results = search_bm25(
+    bm25_candidates = search_bm25(
         query=query,
         retriever=bm25_retriever,
-        top_k=effective_top_k,
+        top_k=candidate_top_k,
     )
 
-    fused_results = reciprocal_rank_fusion(
-        semantic_results=semantic_results,
-        bm25_results=bm25_results,
-        top_k=effective_top_k,
+    hybrid_results = reciprocal_rank_fusion(
+        semantic_results=semantic_candidates,
+        bm25_results=bm25_candidates,
+        top_k=result_top_k,
     )
 
     return {
         "query": query,
-        "semantic_results": semantic_results,
-        "bm25_results": bm25_results,
-        "hybrid_results": fused_results,
+        "semantic_results": semantic_candidates[:result_top_k],
+        "bm25_results": bm25_candidates[:result_top_k],
+        "hybrid_results": hybrid_results,
     }
 
 
