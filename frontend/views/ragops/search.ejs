@@ -363,7 +363,7 @@
                     </details>
 
                     <a
-                      href="/ragops/documents/<%= encodeURIComponent(result.document_id) %>/source<%= result.page_number ? `#page=${result.page_number}` : '' %>"
+                      href="<%= buildSourceUrl(result) %>"
                       target="_blank"
                       class="btn btn-sm btn-outline-primary mt-3"
                     >
@@ -422,7 +422,7 @@
                 <%= result.text %>
               </p>
                 <a
-                  href="/ragops/documents/<%= encodeURIComponent(result.document_id) %>/source<%= result.page_number ? `#page=${result.page_number}` : '' %>"
+                  href="<%= buildSourceUrl(result) %>"
                   target="_blank"
                   class="btn btn-sm btn-outline-primary mt-3"
                 >

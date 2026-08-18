@@ -49,6 +49,59 @@ const upload = multer({
   }
 });
 
+function encodeTextFragment(text) {
+  return encodeURIComponent(text)
+    .replace(/-/g, '%2D');
+}
+
+function buildSourceUrl(result) {
+  const baseUrl =
+    `/ragops/documents/${encodeURIComponent(result.document_id)}/source`;
+
+  const words = String(result.text || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean);
+
+  const pageFragment = result.page_number
+    ? `page=${result.page_number}`
+    : '';
+
+  if (words.length === 0) {
+    return pageFragment
+      ? `${baseUrl}#${pageFragment}`
+      : baseUrl;
+  }
+
+  let textFragment;
+
+  if (words.length >= 20) {
+    // Skip the first/last words because chunk boundaries can
+    // occasionally begin or end in awkward positions.
+    const startText = words
+      .slice(2, 10)
+      .join(' ');
+
+    const endText = words
+      .slice(-10, -2)
+      .join(' ');
+
+    textFragment =
+      `text=${encodeTextFragment(startText)},` +
+      `${encodeTextFragment(endText)}`;
+  } else {
+    textFragment =
+      `text=${encodeTextFragment(words.join(' '))}`;
+  }
+
+  if (pageFragment) {
+    return `${baseUrl}#${pageFragment}:~:${textFragment}`;
+  }
+
+  return `${baseUrl}#:~:${textFragment}`;
+}
+
 
 /*
  * This helper prevents us from repeating all the default values
@@ -67,6 +120,7 @@ function renderSearch(res, values = {}) {
     upload_data: null,
     selected_document_ids: null,
     search_method: 'hybrid',
+    buildSourceUrl,
     ...values
   });
 }
