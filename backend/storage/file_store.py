@@ -174,30 +174,3 @@ def _validate_document_id(document_id: str) -> None:
         or "\\" in document_id
     ):
         raise ValueError("Invalid document ID.")
-
-def load_processed_text(document_id: str) -> str | None:
-    """Load the processed text for an indexed document."""
-
-    _validate_document_id(document_id)
-
-    file_path = PROCESSED_DIR / f"{document_id}.txt"
-
-    if not file_path.exists():
-        return None
-
-    return file_path.read_text(encoding="utf-8")
-
-
-def load_document_chunks(document_id: str) -> list[dict] | None:
-    """Load the stored chunks for an indexed document."""
-
-    _validate_document_id(document_id)
-
-    file_path = CHUNKS_DIR / f"{document_id}.json"
-
-    if not file_path.exists():
-        return None
-
-    return json.loads(
-        file_path.read_text(encoding="utf-8")
-    )

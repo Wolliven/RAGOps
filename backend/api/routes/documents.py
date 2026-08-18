@@ -8,11 +8,8 @@ from backend.services.ingestion_service import (
 )
 from backend.storage.file_store import list_document_metadata
 from backend.services.document_service import (
-    ChunkNotFoundError,
-    DocumentContentNotFoundError,
     DocumentNotFoundError,
     delete_indexed_document,
-    get_document_view,
 )
 
 
@@ -49,35 +46,6 @@ def delete_document(document_id: str):
         raise HTTPException(
             status_code=404,
             detail="Indexed document not found.",
-        ) from error
-
-    except ValueError as error:
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
-        ) from error
-
-@router.get("/documents/{document_id}/view")
-def view_document(
-    document_id: str,
-    chunk_index: int | None = None,
-):
-    try:
-        return get_document_view(
-            document_id=document_id,
-            chunk_index=chunk_index,
-        )
-
-    except DocumentContentNotFoundError as error:
-        raise HTTPException(
-            status_code=404,
-            detail="Document content not found.",
-        ) from error
-
-    except ChunkNotFoundError as error:
-        raise HTTPException(
-            status_code=404,
-            detail="Requested chunk not found.",
         ) from error
 
     except ValueError as error:
