@@ -75,3 +75,27 @@ def clean_pdf_text(text: str) -> str:
     cleaned_text = re.sub(r"[ \t]+", " ", cleaned_text)
 
     return cleaned_text.strip()
+
+def get_pdf_page_ranges(text: str) -> list[dict]:
+    """Find the character range occupied by each PDF page."""
+
+    page_pattern = re.compile(r"--- Page (\d+) ---")
+    matches = list(page_pattern.finditer(text))
+
+    page_ranges = []
+
+    for index, match in enumerate(matches):
+        start_char = match.start()
+
+        if index + 1 < len(matches):
+            end_char = matches[index + 1].start()
+        else:
+            end_char = len(text)
+
+        page_ranges.append({
+            "page_number": int(match.group(1)),
+            "start_char": start_char,
+            "end_char": end_char,
+        })
+
+    return page_ranges

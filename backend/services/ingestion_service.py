@@ -7,7 +7,10 @@ from backend.processing.chunking import (
     chunk_text,
     create_chunk_metadata,
 )
-from backend.processing.extractors import extract_text_from_file
+from backend.processing.extractors import (
+    extract_text_from_file,
+    get_pdf_page_ranges,
+)
 from backend.services.embedding_service import embed_chunks
 from backend.storage.file_store import (
     save_uploaded_file,
@@ -54,6 +57,13 @@ def ingest_document(
         document_id=document_id,
         source_file=filename,
     )
+    if file_path.suffix.lower() == ".pdf":
+        page_ranges = get_pdf_page_ranges(text)
+
+        _attach_pdf_page_metadata(
+            chunks=chunk_data,
+            page_ranges=page_ranges,
+        )
 
     save_chunks(
         document_id=document_id,
@@ -99,3 +109,50 @@ def ingest_document(
         "embeddings_path": str(embeddings_path),
         "embedding_dimensions": embedding_dimensions,
     }
+
+def _attach_pdf_page_metadata(
+    chunks: list[dict],
+    page_ranges: list[dict],
+) -> None:
+    """Attach PDF page information to each chunk."""
+
+    for chunk in chunks:
+        chunk_start = chunk["start_char"]
+        chunk_end = chunk["end_char"]
+
+        page_overlaps = []
+
+        for page in page_ranges:
+            overlap_start = max(
+                chunk_start,
+                page["start_char"],
+            )
+
+            overlap_end = min(
+                chunk_end,
+                page["end_char"],
+            )
+
+            overlap_size = max(
+                0,
+                overlap_end - overlap_start,
+            )
+
+            if overlap_size > 0:
+                page_overlaps.append({
+                    "page_number": page["page_number"],
+                    "overlap_size": overlap_size,
+                })
+
+        chunk["page_numbers"] = [
+            page["page_number"]
+            for page in page_overlaps
+        ]
+
+        if page_overlaps:
+            primary_page = max(
+                page_overlaps,
+                key=lambda page: page["overlap_size"],
+            )
+
+            chunk["page_number"] = primary_page["page_number"]
