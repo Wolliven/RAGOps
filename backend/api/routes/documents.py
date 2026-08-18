@@ -10,7 +10,9 @@ from backend.storage.file_store import list_document_metadata
 from backend.services.document_service import (
     DocumentNotFoundError,
     delete_indexed_document,
+    get_document_source_path,
 )
+from fastapi.responses import FileResponse
 
 
 router = APIRouter(tags=["documents"])
@@ -41,6 +43,29 @@ def upload_file(file: UploadFile = File(...)):
 def delete_document(document_id: str):
     try:
         return delete_indexed_document(document_id)
+
+    except DocumentNotFoundError as error:
+        raise HTTPException(
+            status_code=404,
+            detail="Indexed document not found.",
+        ) from error
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
+
+@router.get("/documents/{document_id}/source")
+def get_document_source(document_id: str):
+    try:
+        file_path = get_document_source_path(document_id)
+
+        return FileResponse(
+            path=file_path,
+            filename=file_path.name,
+            content_disposition_type="inline",
+        )
 
     except DocumentNotFoundError as error:
         raise HTTPException(

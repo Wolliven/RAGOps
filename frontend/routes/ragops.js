@@ -416,4 +416,62 @@ router.post('/history/delete', (req, res, next) => {
   );
 });
 
+router.get('/documents/:documentId/source', async (req, res) => {
+  const documentId = String(
+    req.params.documentId || ''
+  ).trim();
+
+  if (!documentId) {
+    res.status(400).send('Invalid document ID.');
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/documents/${encodeURIComponent(documentId)}/source`
+    );
+
+    if (!response.ok) {
+      const responseText = await response.text();
+
+      res
+        .status(response.status)
+        .send(responseText);
+
+      return;
+    }
+
+    const contentType = response.headers.get('content-type');
+
+    if (contentType) {
+      res.setHeader('Content-Type', contentType);
+    }
+
+    const contentDisposition =
+      response.headers.get('content-disposition');
+
+    if (contentDisposition) {
+      res.setHeader(
+        'Content-Disposition',
+        contentDisposition
+      );
+    }
+
+    const buffer = Buffer.from(
+      await response.arrayBuffer()
+    );
+
+    res.send(buffer);
+  } catch (err) {
+    console.error(
+      'Could not load document source:',
+      err
+    );
+
+    res.status(502).send(
+      'Could not load document source.'
+    );
+  }
+});
+
 module.exports = router;

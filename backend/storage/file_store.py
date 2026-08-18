@@ -174,3 +174,28 @@ def _validate_document_id(document_id: str) -> None:
         or "\\" in document_id
     ):
         raise ValueError("Invalid document ID.")
+
+def get_original_file_path(
+    document_id: str,
+) -> Path | None:
+    """Return the original uploaded file path for an indexed document."""
+
+    _validate_document_id(document_id)
+
+    metadata_path = DOCUMENTS_DIR / f"{document_id}.json"
+
+    if not metadata_path.exists():
+        return None
+
+    metadata = json.loads(
+        metadata_path.read_text(encoding="utf-8")
+    )
+
+    filename = Path(metadata["filename"]).name
+
+    file_path = UPLOAD_DIR / filename
+
+    if not file_path.exists():
+        return None
+
+    return file_path

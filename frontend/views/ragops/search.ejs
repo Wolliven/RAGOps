@@ -361,6 +361,17 @@
                         <%= result.text %>
                       </p>
                     </details>
+
+                    <a
+                      href="/ragops/documents/<%= encodeURIComponent(result.document_id) %>/source<%= result.page_number ? `#page=${result.page_number}` : '' %>"
+                      target="_blank"
+                      class="btn btn-sm btn-outline-primary mt-3"
+                    >
+                      Open in source
+                      <% if (result.page_number) { %>
+                        — page <%= result.page_number %>
+                      <% } %>
+                    </a>
                   </div>
                 </div>
               <% } %>
@@ -410,6 +421,16 @@
               <p class="mb-0">
                 <%= result.text %>
               </p>
+                <a
+                  href="/ragops/documents/<%= encodeURIComponent(result.document_id) %>/source<%= result.page_number ? `#page=${result.page_number}` : '' %>"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-primary mt-3"
+                >
+                  Open in source
+                  <% if (result.page_number) { %>
+                    — page <%= result.page_number %>
+                  <% } %>
+                </a>
             </div>
           </div>
         <% } %>
@@ -421,6 +442,8 @@
         </div>
 
       <% } %>
+    </section>
+  </main>
 
   <script>
     // Upload elements

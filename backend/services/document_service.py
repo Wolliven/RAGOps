@@ -2,7 +2,9 @@
 
 from backend.storage.file_store import (
     delete_document_data,
+    get_original_file_path
 )
+from pathlib import Path
 
 class DocumentNotFoundError(LookupError):
     """Raised when an indexed document does not exist."""
@@ -23,3 +25,15 @@ def delete_indexed_document(document_id: str) -> dict:
         "filename": metadata["filename"],
         "deleted_files": len(deleted_document["deleted_files"]),
     }
+
+def get_document_source_path(
+    document_id: str,
+) -> Path:
+    """Return the original source file for an indexed document."""
+
+    file_path = get_original_file_path(document_id)
+
+    if file_path is None:
+        raise DocumentNotFoundError
+
+    return file_path
