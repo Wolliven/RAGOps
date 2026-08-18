@@ -5,8 +5,8 @@ def chunk_text(
     text: str,
     chunk_size: int = 800,
     overlap: int = 100,
-) -> list[str]:
-    """Split text into overlapping chunks."""
+) -> list[dict]:
+    """Split text into overlapping chunks and preserve their positions."""
 
     if chunk_size <= 0:
         raise ValueError("chunk_size must be greater than 0")
@@ -30,10 +30,22 @@ def chunk_text(
             if last_space != -1 and last_space > start:
                 end = last_space
 
-        chunk = text[start:end].strip()
+        raw_chunk = text[start:end]
+        chunk = raw_chunk.strip()
 
         if chunk:
-            chunks.append(chunk)
+            leading_whitespace = (
+                len(raw_chunk) - len(raw_chunk.lstrip())
+            )
+
+            chunk_start = start + leading_whitespace
+            chunk_end = chunk_start + len(chunk)
+
+            chunks.append({
+                "text": chunk,
+                "start_char": chunk_start,
+                "end_char": chunk_end,
+            })
 
         next_start = end - overlap
 
@@ -46,7 +58,7 @@ def chunk_text(
 
 
 def create_chunk_metadata(
-    chunks: list[str],
+    chunks: list[dict],
     document_id: str,
     source_file: str,
 ) -> list[dict]:
@@ -60,8 +72,10 @@ def create_chunk_metadata(
             "document_id": document_id,
             "source_file": source_file,
             "chunk_index": index,
-            "text": chunk,
-            "characters": len(chunk),
+            "text": chunk["text"],
+            "characters": len(chunk["text"]),
+            "start_char": chunk["start_char"],
+            "end_char": chunk["end_char"],
         })
 
     return chunk_data
