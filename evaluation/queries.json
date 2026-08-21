@@ -4,83 +4,501 @@
     "query": "How many hours a day do cats sleep?",
     "document_id": "Cat",
     "category": "direct",
-    "relevant_chunk_ids": ["Cat:30"]
+    "relevant_chunk_ids": [
+      "Cat:30"
+    ]
   },
   {
     "id": "q002",
     "query": "Can cats taste sweet things?",
     "document_id": "Cat",
     "category": "direct",
-    "relevant_chunk_ids": ["Cat:27"]
+    "relevant_chunk_ids": [
+      "Cat:27"
+    ]
   },
   {
     "id": "q003",
     "query": "Why do cats purr?",
     "document_id": "Cat",
     "category": "direct",
-    "relevant_chunk_ids": ["Cat:36"]
+    "relevant_chunk_ids": [
+      "Cat:36"
+    ]
   },
   {
     "id": "q004",
     "query": "Do cats always land on their feet?",
     "document_id": "Cat",
     "category": "direct",
-    "relevant_chunk_ids": ["Cat:19", "Cat:20"]
+    "relevant_chunk_ids": [
+      "Cat:19",
+      "Cat:20",
+      "Cat:78"
+    ]
   },
   {
     "id": "q005",
     "query": "Why do cats bring dead animals home?",
     "document_id": "Cat",
     "category": "paraphrase",
-    "relevant_chunk_ids": ["Cat:46", "Cat:47"]
+    "relevant_chunk_ids": [
+      "Cat:46",
+      "Cat:47"
+    ]
   },
   {
     "id": "q006",
     "query": "Are cats nocturnal?",
     "document_id": "Cat",
     "category": "paraphrase",
-    "relevant_chunk_ids": ["Cat:1", "Cat:29", "Cat:30"]
+    "relevant_chunk_ids": [
+      "Cat:29",
+      "Cat:30"
+    ]
   },
   {
     "id": "q007",
     "query": "Is it okay to give milk to cats?",
     "document_id": "Cat",
     "category": "paraphrase",
-    "relevant_chunk_ids": ["Cat:44"]
+    "relevant_chunk_ids": [
+      "Cat:44"
+    ]
   },
   {
     "id": "q008",
     "query": "How good is a cat's hearing compared to a human's?",
     "document_id": "Cat",
     "category": "direct",
-    "relevant_chunk_ids": ["Cat:1", "Cat:24"]
+    "relevant_chunk_ids": [
+      "Cat:24",
+      "Cat:25"
+    ]
   },
   {
     "id": "q009",
     "query": "What are a cat's whiskers actually for?",
     "document_id": "Cat",
     "category": "direct",
-    "relevant_chunk_ids": ["Cat:28", "Cat:29"]
+    "relevant_chunk_ids": [
+      "Cat:28",
+      "Cat:29"
+    ]
   },
   {
     "id": "q010",
     "query": "In what region did cat domestication begin?",
     "document_id": "Cat",
     "category": "direct",
-    "relevant_chunk_ids": ["Cat:1", "Cat:2", "Cat:10"]
+    "relevant_chunk_ids": [
+      "Cat:9",
+      "Cat:10"
+    ]
   },
   {
     "id": "q011",
     "query": "Why do cats need taurine?",
     "document_id": "Cat",
     "category": "direct",
-    "relevant_chunk_ids": ["Cat:22"]
+    "relevant_chunk_ids": [
+      "Cat:22"
+    ]
   },
   {
     "id": "q012",
     "query": "How long do domestic cats usually live?",
     "document_id": "Cat",
     "category": "direct",
-    "relevant_chunk_ids": ["Cat:55"]
+    "relevant_chunk_ids": [
+      "Cat:55"
+    ]
+  },
+  {
+    "id": "q013",
+    "query": "What happens if you fall into a black hole?",
+    "document_id": "Black_hole",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Black_hole:1",
+      "Black_hole:56",
+      "Black_hole:57",
+      "Black_hole:58",
+      "Black_hole:59",
+      "Black_hole:60",
+      "Black_hole:64",
+      "Black_hole:65"
+    ]
+  },
+  {
+    "id": "q014",
+    "query": "How are black holes formed?",
+    "document_id": "Black_hole",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Black_hole:2",
+      "Black_hole:66",
+      "Black_hole:67",
+      "Black_hole:68",
+      "Black_hole:69",
+      "Black_hole:70",
+      "Black_hole:71",
+      "Black_hole:72"
+    ]
+  },
+  {
+    "id": "q015",
+    "query": "Why can't light escape from a black hole?",
+    "document_id": "Black_hole",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Black_hole:0",
+      "Black_hole:1",
+      "Black_hole:28",
+      "Black_hole:50",
+      "Black_hole:52",
+      "Black_hole:53",
+      "Black_hole:56",
+      "Black_hole:57",
+      "Black_hole:58"
+    ]
+  },
+  {
+    "id": "q016",
+    "query": "How do scientists know black holes exist if we can't see them?",
+    "document_id": "Black_hole",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Black_hole:3",
+      "Black_hole:4",
+      "Black_hole:5",
+      "Black_hole:20",
+      "Black_hole:23",
+      "Black_hole:24",
+      "Black_hole:25",
+      "Black_hole:33",
+      "Black_hole:84",
+      "Black_hole:85",
+      "Black_hole:86",
+      "Black_hole:87",
+      "Black_hole:88",
+      "Black_hole:89",
+      "Black_hole:90",
+      "Black_hole:91"
+    ]
+  },
+  {
+    "id": "q017",
+    "query": "Do black holes suck in everything around them?",
+    "document_id": "Black_hole",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Black_hole:31"
+    ]
+  },
+  {
+    "id": "q018",
+    "query": "Can black holes disappear?",
+    "document_id": "Black_hole",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Black_hole:3",
+      "Black_hole:72",
+      "Black_hole:74",
+      "Black_hole:80",
+      "Black_hole:81"
+    ]
+  },
+  {
+    "id": "q019",
+    "query": "Is there a black hole at the center of the Milky Way?",
+    "document_id": "Black_hole",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Black_hole:4",
+      "Black_hole:24",
+      "Black_hole:25",
+      "Black_hole:26",
+      "Black_hole:40",
+      "Black_hole:88",
+      "Black_hole:89",
+      "Black_hole:90"
+    ]
+  },
+  {
+    "id": "q020",
+    "query": "Are all black holes the same size?",
+    "document_id": "Black_hole",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Black_hole:38",
+      "Black_hole:39",
+      "Black_hole:40",
+      "Black_hole:55",
+      "Black_hole:56"
+    ]
+  },
+  {
+    "id": "q021",
+    "query": "What happens when two black holes collide?",
+    "document_id": "Black_hole",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Black_hole:4",
+      "Black_hole:24",
+      "Black_hole:25",
+      "Black_hole:35",
+      "Black_hole:39",
+      "Black_hole:40",
+      "Black_hole:53",
+      "Black_hole:74",
+      "Black_hole:75",
+      "Black_hole:87",
+      "Black_hole:88"
+    ]
+  },
+  {
+    "id": "q022",
+    "query": "Can we actually take a picture of a black hole?",
+    "document_id": "Black_hole",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Black_hole:0",
+      "Black_hole:24",
+      "Black_hole:25",
+      "Black_hole:52",
+      "Black_hole:53",
+      "Black_hole:85",
+      "Black_hole:86",
+      "Black_hole:88",
+      "Black_hole:89"
+    ]
+  },
+  {
+    "id": "q023",
+    "query": "Does time really slow down near a black hole?",
+    "document_id": "Black_hole",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Black_hole:14",
+      "Black_hole:57",
+      "Black_hole:58",
+      "Black_hole:59",
+      "Black_hole:60",
+      "Black_hole:69"
+    ]
+  },
+  {
+    "id": "q024",
+    "query": "Why do black holes sometimes have bright rings around them?",
+    "document_id": "Black_hole",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Black_hole:3",
+      "Black_hole:4",
+      "Black_hole:41",
+      "Black_hole:44",
+      "Black_hole:45",
+      "Black_hole:47",
+      "Black_hole:76",
+      "Black_hole:77"
+    ]
+  },
+  {
+    "id": "q025",
+    "query": "What is Hawking radiation?",
+    "document_id": "Black_hole",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Black_hole:3",
+      "Black_hole:21",
+      "Black_hole:22",
+      "Black_hole:72",
+      "Black_hole:74",
+      "Black_hole:80",
+      "Black_hole:81",
+      "Black_hole:83"
+    ]
+  },
+  {
+    "id": "q026",
+    "query": "How fast can a black hole spin?",
+    "document_id": "Black_hole",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Black_hole:31",
+      "Black_hole:32",
+      "Black_hole:33",
+      "Black_hole:34",
+      "Black_hole:35",
+      "Black_hole:36",
+      "Black_hole:56"
+    ]
+  },
+  {
+    "id": "q027",
+    "query": "How old are the oldest known cave paintings?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:2",
+      "Cave_painting:11"
+    ]
+  },
+  {
+    "id": "q028",
+    "query": "How do scientists date cave paintings?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:1",
+      "Cave_painting:2",
+      "Cave_painting:4",
+      "Cave_painting:5",
+      "Cave_painting:6",
+      "Cave_painting:23",
+      "Cave_painting:24",
+      "Cave_painting:28",
+      "Cave_painting:29"
+    ]
+  },
+  {
+    "id": "q029",
+    "query": "What animals are most common in cave paintings?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:11",
+      "Cave_painting:12"
+    ]
+  },
+  {
+    "id": "q030",
+    "query": "What pigments were used in cave paintings?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:13",
+      "Cave_painting:28",
+      "Cave_painting:42"
+    ]
+  },
+  {
+    "id": "q031",
+    "query": "How were hand stencils made?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:14",
+      "Cave_painting:43"
+    ]
+  },
+  {
+    "id": "q032",
+    "query": "What are the main subjects of cave paintings?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:11",
+      "Cave_painting:12",
+      "Cave_painting:41"
+    ]
+  },
+  {
+    "id": "q033",
+    "query": "Did Neanderthals make cave art too?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:0",
+      "Cave_painting:2",
+      "Cave_painting:9"
+    ]
+  },
+  {
+    "id": "q034",
+    "query": "Why did prehistoric people paint caves?",
+    "document_id": "Cave_painting",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Cave_painting:16",
+      "Cave_painting:17",
+      "Cave_painting:19",
+      "Cave_painting:34"
+    ]
+  },
+  {
+    "id": "q035",
+    "query": "Did prehistoric artists paint people as often as animals?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:7",
+      "Cave_painting:11",
+      "Cave_painting:12",
+      "Cave_painting:35"
+    ]
+  },
+  {
+    "id": "q036",
+    "query": "Did prehistoric people paint the same animals they hunted?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:11",
+      "Cave_painting:12"
+    ]
+  },
+  {
+    "id": "q037",
+    "query": "Could women have made some of the cave paintings?",
+    "document_id": "Cave_painting",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Cave_painting:16",
+      "Cave_painting:18"
+    ]
+  },
+  {
+    "id": "q038",
+    "query": "Did cave art change over time?",
+    "document_id": "Cave_painting",
+    "category": "direct",
+    "relevant_chunk_ids": [
+      "Cave_painting:5",
+      "Cave_painting:7",
+      "Cave_painting:8",
+      "Cave_painting:26",
+      "Cave_painting:30",
+      "Cave_painting:42"
+    ]
+  },
+  {
+    "id": "q039",
+    "query": "Were cave paintings made all at once?",
+    "document_id": "Cave_painting",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Cave_painting:5",
+      "Cave_painting:7",
+      "Cave_painting:30",
+      "Cave_painting:42"
+    ]
+  },
+  {
+    "id": "q040",
+    "query": "What can cave paintings tell us about prehistoric people?",
+    "document_id": "Cave_painting",
+    "category": "paraphrase",
+    "relevant_chunk_ids": [
+      "Cave_painting:1",
+      "Cave_painting:13",
+      "Cave_painting:16",
+      "Cave_painting:18",
+      "Cave_painting:19",
+      "Cave_painting:27",
+      "Cave_painting:33",
+      "Cave_painting:34"
+    ]
   }
 ]
