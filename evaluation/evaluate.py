@@ -63,6 +63,36 @@ def calculate_mrr(
     return sum(reciprocal_ranks) / len(reciprocal_ranks)
 
 
+def print_group_results(
+    title: str,
+    records: list[dict],
+) -> None:
+    """Print retrieval metrics for a subset of evaluation queries."""
+
+    print()
+    print("=" * 60)
+    print(f"{title} ({len(records)} queries)")
+    print("=" * 60)
+
+    for method_name in ["Semantic", "BM25", "Hybrid"]:
+        ranks = [
+            record["ranks"][method_name]
+            for record in records
+        ]
+
+        hit_at_1 = calculate_hit_at_k(ranks, 1)
+        hit_at_3 = calculate_hit_at_k(ranks, 3)
+        hit_at_5 = calculate_hit_at_k(ranks, 5)
+        mrr = calculate_mrr(ranks)
+
+        print()
+        print(method_name)
+        print(f"  Hit@1: {hit_at_1:.3f}")
+        print(f"  Hit@3: {hit_at_3:.3f}")
+        print(f"  Hit@5: {hit_at_5:.3f}")
+        print(f"  MRR@5: {mrr:.3f}")
+
+
 def main() -> None:
     queries = load_queries()
 
@@ -71,6 +101,8 @@ def main() -> None:
         "BM25": [],
         "Hybrid": [],
     }
+
+    evaluation_records = []
 
     evaluation_document_ids = sorted({
         query["document_id"]
@@ -125,6 +157,17 @@ def main() -> None:
         method_ranks["BM25"].append(bm25_rank)
         method_ranks["Hybrid"].append(hybrid_rank)
 
+        evaluation_records.append({
+            "id": query_data["id"],
+            "document_id": query_data["document_id"],
+            "category": query_data["category"],
+            "ranks": {
+                "Semantic": semantic_rank,
+                "BM25": bm25_rank,
+                "Hybrid": hybrid_rank,
+            },
+        })
+
         print(
             f'{query_data["id"]} '
             f'[{query_data["category"]}] '
@@ -155,6 +198,39 @@ def main() -> None:
         print(f"  Hit@3: {hit_at_3:.3f}")
         print(f"  Hit@5: {hit_at_5:.3f}")
         print(f"  MRR@5: {mrr:.3f}")
+
+    document_ids = sorted({
+        record["document_id"]
+        for record in evaluation_records
+    })
+
+    for document_id in document_ids:
+        document_records = [
+            record
+            for record in evaluation_records
+            if record["document_id"] == document_id
+        ]
+
+        print_group_results(
+            title=f"DOCUMENT: {document_id}",
+            records=document_records,
+        )
+    categories = sorted({
+        record["category"]
+        for record in evaluation_records
+    })
+
+    for category in categories:
+        category_records = [
+            record
+            for record in evaluation_records
+            if record["category"] == category
+        ]
+
+        print_group_results(
+            title=f"CATEGORY: {category}",
+            records=category_records,
+        )
 
 
 if __name__ == "__main__":

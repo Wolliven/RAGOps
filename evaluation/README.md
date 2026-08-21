@@ -98,30 +98,101 @@ The final evaluation contains 40 queries across three documents.
 | BM25     |     0.450 | **0.625** |     0.700 |     0.545 |
 | Hybrid   |     0.400 |     0.575 | **0.750** |     0.516 |
 
+## Results by document
+
+Retrieval performance varied substantially depending on the source document.
+
+### Black_hole
+
+| Method | Hit@1 | Hit@3 | Hit@5 | MRR@5 |
+| --- | ---: | ---: | ---: | ---: |
+| Semantic | **0.571** | 0.643 | **0.786** | **0.639** |
+| BM25 | 0.429 | **0.714** | 0.714 | 0.560 |
+| Hybrid | 0.429 | **0.714** | **0.786** | 0.562 |
+
+Semantic Search produced the strongest ranking quality, while Hybrid matched
+its top-5 coverage.
+
+### Cat
+
+| Method | Hit@1 | Hit@3 | Hit@5 | MRR@5 |
+| --- | ---: | ---: | ---: | ---: |
+| Semantic | **0.667** | **0.750** | 0.750 | **0.708** |
+| BM25 | 0.500 | 0.667 | 0.750 | 0.600 |
+| Hybrid | 0.583 | 0.667 | **1.000** | 0.690 |
+
+Hybrid Search retrieved relevant evidence within the first five results for
+all Cat queries, while Semantic Search generally ranked relevant evidence
+higher.
+
+### Cave_painting
+
+| Method | Hit@1 | Hit@3 | Hit@5 | MRR@5 |
+| --- | ---: | ---: | ---: | ---: |
+| Semantic | 0.286 | 0.429 | 0.571 | 0.393 |
+| BM25 | **0.429** | **0.500** | **0.643** | **0.485** |
+| Hybrid | 0.214 | 0.357 | 0.500 | 0.321 |
+
+BM25 performed best on the Cave_painting document. This corpus contains many
+semantically related passages using similar terminology, which made semantic
+ranking less discriminative. Lexical matching was more effective for several
+fact-oriented questions in this document.
+
+These differences show that retrieval effectiveness depends not only on the
+query but also on the structure and vocabulary of the source corpus.
+
+## Results by query category
+
+The benchmark contains 26 direct queries and 14 paraphrased queries.
+
+### Direct queries
+
+| Method | Hit@1 | Hit@3 | Hit@5 | MRR@5 |
+| --- | ---: | ---: | ---: | ---: |
+| Semantic | **0.538** | 0.654 | 0.731 | 0.615 |
+| BM25 | **0.538** | **0.769** | **0.846** | **0.663** |
+| Hybrid | **0.538** | 0.615 | 0.808 | 0.623 |
+
+BM25 was the strongest method for direct queries, where important terms in
+the question often appeared explicitly in the source text.
+
+### Paraphrased queries
+
+| Method | Hit@1 | Hit@3 | Hit@5 | MRR@5 |
+| --- | ---: | ---: | ---: | ---: |
+| Semantic | **0.429** | **0.500** | **0.643** | **0.496** |
+| BM25 | 0.286 | 0.357 | 0.429 | 0.327 |
+| Hybrid | 0.143 | **0.500** | **0.643** | 0.318 |
+
+Semantic Search performed substantially better than BM25 at ranking
+paraphrased queries near the top of the results.
+
+Hybrid Search eventually matched Semantic Search at Hit@3 and Hit@5, but its
+much lower Hit@1 and MRR@5 show that fusion often pushed relevant semantic
+matches further down the ranking.
+
 ## Interpretation
 
-No retrieval method dominated every metric.
+The evaluation did not produce a single retrieval strategy that dominated
+across all query types and documents.
 
-Semantic Search achieved the best **Hit@1** and **MRR@5**, meaning that it
-was generally the strongest method at placing relevant evidence near the
-top of the ranking.
+Semantic Search achieved the strongest overall ranking quality, with the
+highest Hit@1 (0.500) and MRR@5 (0.574). Its advantage was particularly clear
+for paraphrased queries, where semantic similarity helped retrieve evidence
+despite differences in wording.
 
-BM25 remained highly competitive and achieved the best **Hit@3**. It was
-particularly useful for queries where important terminology in the query
-also appeared directly in the source text.
+BM25 achieved the highest Hit@3 overall (0.625) and was the strongest method
+for direct queries. It also substantially outperformed the other methods on
+the Cave_painting corpus, showing that lexical retrieval remains valuable for
+fact-oriented and terminology-heavy documents.
 
-Hybrid Search achieved the highest **Hit@5**, retrieving relevant evidence
-for 75% of the evaluation queries within the first five results.
+Hybrid Search achieved the highest overall Hit@5 (0.750), demonstrating that
+combining both retrieval methods improved evidence coverage. However, its
+lower MRR@5 (0.516) indicates that this additional coverage came at the cost
+of ranking quality.
 
-However, its lower MRR@5 shows that relevant evidence was often ranked
-lower than with Semantic Search.
-
-This demonstrates an important trade-off in the current system:
-
-* Semantic Search provides the strongest ranking quality.
-* BM25 provides strong lexical retrieval and complements semantic search.
-* Hybrid Search improves top-5 coverage, but does not always improve ranking
-  quality.
+The results support exposing multiple retrieval strategies rather than
+assuming that one method is universally superior.
 
 ## Error analysis
 
