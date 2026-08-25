@@ -6,6 +6,8 @@ The project started as an exploration of Retrieval-Augmented Generation, but its
 
 RAGOps runs locally without a generative LLM or external AI API.
 
+![RAGOps document retrieval interface](docs/screenshots/overview.png)
+
 ## What it does
 
 RAGOps lets you:
@@ -61,6 +63,8 @@ Hybrid Search retrieves candidates using both Semantic Search and BM25 and combi
 
 RRF improves retrieval coverage, although the project evaluation also revealed cases where exact-chunk fusion can reduce ranking quality.
 
+![Semantic, BM25, and Hybrid retrieval comparison](docs/screenshots/comparison.png)
+
 ## Architecture
 
 ```text
@@ -115,6 +119,8 @@ For PDFs, page metadata is preserved during ingestion. Search results can theref
 On browsers supporting Text Fragments, RAGOps also attempts to highlight matching source text.
 
 This highlighting is best-effort: if the browser does not support the feature or the text cannot be matched exactly, the source document still opens normally.
+
+![Search result opened in the original PDF source](docs/screenshots/source-navigation.png)
 
 ## Retrieval evaluation
 
@@ -220,6 +226,12 @@ RAGOps/
 │   ├── public/
 │   ├── app.js
 │   └── package.json
+│
+├── docs/
+│   └── screenshots/
+│       ├── overview.png
+│       ├── comparison.png
+│       └── source-navigation.png
 │
 ├── evaluation/
 │   ├── evaluate.py
@@ -330,7 +342,7 @@ Open the original source
 
 ## Limitations
 
-RAGOps is a portfolio and educational project rather than a production search platform.
+RAGOps is designed as a portfolio-scale retrieval system rather than a production search platform.
 
 Current limitations include a small evaluation corpus, file-based embedding storage, fixed-size chunking, exact-chunk RRF, and best-effort browser-dependent source highlighting.
 
