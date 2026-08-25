@@ -9,7 +9,13 @@ const API_BASE_URL = 'http://127.0.0.1:8000';
 
 // Put the database in the Express project root instead of depending
 // on whichever folder the terminal happens to be using.
-const dbPath = path.join(__dirname, '..', 'ragops.db');
+const dbPath = path.join(
+  __dirname,
+  '..',
+  '..',
+  'data',
+  'ragops.db'
+);
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
