@@ -15,10 +15,18 @@
 
 <body class="container">
   <header class="mt-4 mb-4">
-    <h1 class="display-4">RAGOps Web Manager</h1>
-    <p>Upload documents and search their content by meaning.</p>
+    <span class="app-label">
+      Local Document Retrieval
+    </span>
 
-    <a href="/ragops/history" class="btn btn-secondary">
+    <h1>RAGOps</h1>
+
+    <p>
+      Index documents, compare retrieval strategies, and inspect
+      the original evidence behind every result.
+    </p>
+
+    <a href="/ragops/history" class="btn btn-outline-secondary">
       Search History
     </a>
   </header>
@@ -87,17 +95,6 @@
         </span>
       </div>
 
-      <% if (upload_data) { %>
-        <div class="card mt-3">
-          <div class="card-header">
-            Processing Result
-          </div>
-
-          <div class="card-body">
-            <pre class="mb-0"><%= JSON.stringify(upload_data, null, 2) %></pre>
-          </div>
-        </div>
-      <% } %>
     </section>
 
     <!-- Indexed documents section -->
@@ -261,7 +258,7 @@
           </select>
 
           <small class="form-text text-muted">
-            Hybrid combines semantic and keyword-based retrieval.
+            Choose a retrieval strategy or compare all three methods side by side.
           </small>
         </div>
 
@@ -418,7 +415,7 @@
             </div>
 
             <div class="card-body">
-              <p class="mb-0">
+              <p class="mb-0 result-text">
                 <%= result.text %>
               </p>
                 <a

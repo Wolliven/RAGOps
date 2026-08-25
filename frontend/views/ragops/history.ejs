@@ -14,52 +14,85 @@
 </head>
 
 <body class="container">
-  <header class="mt-4 mb-4">
-    <h1 class="display-4">Search History</h1>
+  <header>
+    <span class="app-label">
+      RAGOps
+    </span>
 
-    <a href="/ragops/search" class="btn btn-secondary">
-      Back to Search
-    </a>
-    <form
-      method="post"
-      action="/ragops/history/delete"
-      class="d-inline"
-      onsubmit="return confirm('Delete all search history? This action cannot be undone.');"
-    >
-      <button type="submit" class="btn btn-danger">
-        Delete History
-      </button>
-    </form>
+    <h1>Search History</h1>
+
+    <p>
+      Previous searches made through the document retrieval interface.
+    </p>
+
+    <div class="mt-3">
+      <a
+        href="/ragops/search"
+        class="btn btn-outline-secondary"
+      >
+        Back to Search
+      </a>
+
+      <form
+        method="post"
+        action="/ragops/history/delete"
+        class="d-inline"
+        onsubmit="return confirm('Delete all search history? This action cannot be undone.');"
+      >
+        <button
+          type="submit"
+          class="btn btn-outline-danger ml-2"
+        >
+          Delete History
+        </button>
+      </form>
+    </div>
   </header>
 
-  <% if (history.length === 0) { %>
-    <div class="alert alert-info">
-      No searches have been saved yet.
-    </div>
-  <% } else { %>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Question</th>
-          <th>Number of Results</th>
-          <th>Date and Time</th>
-        </tr>
-      </thead>
+  <main>
+    <section>
+      <div class="mb-4">
+        <h2>Saved Searches</h2>
 
-      <tbody>
-        <% for (let i = 0; i < history.length; i++) { %>
-          <% const item = history[i]; %>
+        <p class="text-muted mb-0">
+          Queries are stored locally in SQLite.
+        </p>
+      </div>
 
-          <tr>
-            <td><%= item.id %></td>
-            <td><%= item.query %></td>
-            <td><%= item.top_k %></td>
-            <td><%= new Date(item.created_at).toLocaleString('en-GB') %></td>
-          </tr>
-        <% } %>
-      </tbody>
-    </table>
-  <% } %>
+      <% if (history.length === 0) { %>
+        <div class="alert alert-light border mb-0">
+          No searches have been saved yet.
+        </div>
+      <% } else { %>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Results</th>
+                <th>Date and Time</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% for (let i = 0; i < history.length; i++) { %>
+                <% const item = history[i]; %>
+
+                <tr>
+                  <td><%= item.id %></td>
+                  <td><%= item.query %></td>
+                  <td><%= item.top_k %></td>
+                  <td>
+                    <%= new Date(item.created_at).toLocaleString('en-GB') %>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </section>
+  </main>
 </body>
 </html>
